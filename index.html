@@ -11,6 +11,7 @@
     background: #f5f5f5;
     padding: 20px;
   }
+
   form {
     background: #ffffff;
     padding: 20px;
@@ -19,46 +20,48 @@
     margin: auto;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
   }
+
   label {
     font-weight: bold;
     margin-top: 10px;
     display: block;
   }
+
   input,
-select,
-button {
-  width: 100%;
-  height: 42px;              /* ✅ uniform height */
-  padding: 8px 10px;
-  margin-top: 5px;
-  box-sizing: border-box;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
+  select,
+  button {
+    width: 100%;
+    height: 42px;
+    padding: 8px 10px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
 
-/* Fix date input alignment */
-input[type="date"] {
-  padding-right: 8px;
-}
+  input:disabled,
+  select:disabled {
+    background-color: #f0f0f0;
+    color: #666;
+    cursor: not-allowed;
+  }
 
-/* Button height same as inputs */
-button {
-  height: 44px;
-  background: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 15px;
-}
+  button {
+    height: 44px;
+    margin-top: 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+  }
 
-/* Disabled inputs look consistent */
-input:disabled,
-select:disabled {
-  background-color: #f0f0f0;
-  color: #666;
-  cursor: not-allowed;
-}
+  .denoms {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
 </style>
 </head>
 
@@ -67,7 +70,6 @@ select:disabled {
 <form id="loanForm">
 <h2>Loan Entry</h2>
 
-<!-- DATE -->
 <label>Date</label>
 <input type="date" id="date" required>
 
@@ -91,11 +93,9 @@ select:disabled {
   style="display:none;"
 >
 
-<!-- NARRATION -->
 <label>Narration</label>
 <input type="text" id="narration" required>
 
-<!-- TRANSACTION TYPE -->
 <label>Transaction Type</label>
 <select id="trtype" required>
   <option value="">Select</option>
@@ -106,11 +106,9 @@ select:disabled {
   <option value="credit">Credit</option>
 </select>
 
-<!-- ACCOUNT -->
 <label id="accountLabel" style="display:none;">Account</label>
 <select id="account" style="display:none;"></select>
 
-<!-- AMOUNT -->
 <label>Amount</label>
 <input type="number" id="amount" required>
 
@@ -130,7 +128,6 @@ select:disabled {
   </div>
 </div>
 
-
 <button type="submit">Submit</button>
 </form>
 
@@ -138,9 +135,9 @@ select:disabled {
 const trtype = document.getElementById("trtype");
 const amountInput = document.getElementById("amount");
 const denomInputs = document.querySelectorAll(".denom");
+const denominationSection = document.getElementById("denominationSection");
 const account = document.getElementById("account");
 const accountLabel = document.getElementById("accountLabel");
-
 const borrowerSelect = document.getElementById("borrowerSelect");
 const otherBorrower = document.getElementById("otherBorrower");
 
@@ -159,7 +156,7 @@ const creditCards = [
   "SBI BPCL", "Standard Chartered"
 ];
 
-/* Borrower ? Other */
+/* Borrower Other */
 borrowerSelect.addEventListener("change", () => {
   if (borrowerSelect.value === "Other") {
     otherBorrower.style.display = "block";
@@ -185,6 +182,7 @@ trtype.addEventListener("change", () => {
   account.innerHTML = "";
 
   if (trtype.value === "cash") {
+    denominationSection.style.display = "block";
     accountLabel.style.display = "none";
     account.style.display = "none";
     account.required = false;
@@ -198,6 +196,8 @@ trtype.addEventListener("change", () => {
     amountInput.disabled = true;
     return;
   }
+
+  denominationSection.style.display = "none";
 
   denomInputs.forEach(i => {
     i.disabled = true;
@@ -242,24 +242,21 @@ document.getElementById("loanForm").addEventListener("submit", async (e) => {
     denominations
   };
 
-  await fetch("https://hook.eu1.make.com/uayw6m2h1u56gz1fuhnyewvh860q8tjy", {
+  await fetch("https://hook.eu1.make.com/YOUR_WEBHOOK_URL", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   });
 
-  alert("&#10004; Loan entry saved");
+  alert("Loan entry saved successfully");
   loanForm.reset();
   amountInput.disabled = false;
-  otherBorrower.style.display = "none";
+  denominationSection.style.display = "none";
   account.style.display = "none";
   accountLabel.style.display = "none";
+  otherBorrower.style.display = "none";
 });
 </script>
 
 </body>
 </html>
-
-
-
-
