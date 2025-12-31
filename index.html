@@ -98,18 +98,21 @@
 <input type="number" id="amount" required>
 
 <!-- DENOMINATIONS -->
-<label>Cash Denominations</label>
-<div class="denoms">
-  <input type="number" class="denom" data-val="1" placeholder="&#8377;1" disabled>
-  <input type="number" class="denom" data-val="2" placeholder="&#8377;2" disabled>
-  <input type="number" class="denom" data-val="5" placeholder="&#8377;5" disabled>
-  <input type="number" class="denom" data-val="10" placeholder="&#8377;10" disabled>
-  <input type="number" class="denom" data-val="20" placeholder="&#8377;20" disabled>
-  <input type="number" class="denom" data-val="50" placeholder="&#8377;50" disabled>
-  <input type="number" class="denom" data-val="100" placeholder="&#8377;100" disabled>
-  <input type="number" class="denom" data-val="200" placeholder="&#8377;200" disabled>
-  <input type="number" class="denom" data-val="500" placeholder="&#8377;500" disabled>
+<div id="denominationSection" style="display:none;">
+  <label>Cash Denominations</label>
+  <div class="denoms">
+    <input type="number" class="denom" data-val="1" placeholder="&#8377;1" disabled>
+    <input type="number" class="denom" data-val="2" placeholder="&#8377;2" disabled>
+    <input type="number" class="denom" data-val="5" placeholder="&#8377;5" disabled>
+    <input type="number" class="denom" data-val="10" placeholder="&#8377;10" disabled>
+    <input type="number" class="denom" data-val="20" placeholder="&#8377;20" disabled>
+    <input type="number" class="denom" data-val="50" placeholder="&#8377;50" disabled>
+    <input type="number" class="denom" data-val="100" placeholder="&#8377;100" disabled>
+    <input type="number" class="denom" data-val="200" placeholder="&#8377;200" disabled>
+    <input type="number" class="denom" data-val="500" placeholder="&#8377;500" disabled>
+  </div>
 </div>
+
 
 <button type="submit">Submit</button>
 </form>
@@ -239,5 +242,6 @@ document.getElementById("loanForm").addEventListener("submit", async (e) => {
 
 </body>
 </html>
+
 
 
