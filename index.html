@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Loan Entry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    padding: 20px;
+  }
+  form {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 420px;
+    margin: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+  }
+  input, select, button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+  }
+  .denoms {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  button {
+    margin-top: 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+</style>
+</head>
+
+<body>
+
+<form id="loanForm">
+<h2>Loan Entry</h2>
+
+<!-- DATE -->
+<label>Date</label>
+<input type="date" id="date" required>
+
+<label>Borrower</label>
+<select id="borrowerSelect" required>
+  <option value="">Select</option>
+  <option>Chinnama</option>
+  <option>Grand Father</option>
+  <option>Mother</option>
+  <option>Pedhamma</option>
+  <option>Ravi Babai</option>
+  <option>Srinivas Babai</option>
+  <option>Vasavi</option>
+  <option value="Other">Other</option>
+</select>
+
+<input
+  type="text"
+  id="otherBorrower"
+  placeholder="Enter borrower name"
+  style="display:none;"
+>
+
+<!-- NARRATION -->
+<label>Narration</label>
+<input type="text" id="narration" required>
+
+<!-- TRANSACTION TYPE -->
+<label>Transaction Type</label>
+<select id="trtype" required>
+  <option value="">Select</option>
+  <option value="cash">Cash</option>
+  <option value="upi">UPI</option>
+  <option value="net">Net Banking</option>
+  <option value="debit">Debit</option>
+  <option value="credit">Credit</option>
+</select>
+
+<!-- ACCOUNT -->
+<label id="accountLabel" style="display:none;">Account</label>
+<select id="account" style="display:none;"></select>
+
+<!-- AMOUNT -->
+<label>Amount</label>
+<input type="number" id="amount" required>
+
+<!-- DENOMINATIONS -->
+<label>Cash Denominations</label>
+<div class="denoms">
+  <input type="number" class="denom" data-val="1" placeholder="&#8377;1" disabled>
+  <input type="number" class="denom" data-val="2" placeholder="&#8377;2" disabled>
+  <input type="number" class="denom" data-val="5" placeholder="&#8377;5" disabled>
+  <input type="number" class="denom" data-val="10" placeholder="&#8377;10" disabled>
+  <input type="number" class="denom" data-val="20" placeholder="&#8377;20" disabled>
+  <input type="number" class="denom" data-val="50" placeholder="&#8377;50" disabled>
+  <input type="number" class="denom" data-val="100" placeholder="&#8377;100" disabled>
+  <input type="number" class="denom" data-val="200" placeholder="&#8377;200" disabled>
+  <input type="number" class="denom" data-val="500" placeholder="&#8377;500" disabled>
+</div>
+
+<button type="submit">Submit</button>
+</form>
+
+<script>
+const trtype = document.getElementById("trtype");
+const amountInput = document.getElementById("amount");
+const denomInputs = document.querySelectorAll(".denom");
+const account = document.getElementById("account");
+const accountLabel = document.getElementById("accountLabel");
+
+const borrowerSelect = document.getElementById("borrowerSelect");
+const otherBorrower = document.getElementById("otherBorrower");
+
+const bankAccounts = [
+  "Axis", "HDFC Old", "HDFC New", "ICICI",
+  "IndusInd", "Kotak", "RBL", "SBI"
+];
+
+const creditCards = [
+  "Axis Flipkart", "Axis MyZone", "Axis Neo",
+  "HDFC PhonePe", "HDFC Tata Neu", "HDFC Millennia",
+  "HSBC", "IDFC First Millenia",
+  "ICICI Amazon", "ICICI Coral", "ICICI Expressions",
+  "Indusind Plat Aura EDGE", "Indusind Legend",
+  "Yes Finbooster", "Kotak League", "Kotak Image",
+  "SBI BPCL", "Standard Chartered"
+];
+
+/* Borrower ? Other */
+borrowerSelect.addEventListener("change", () => {
+  if (borrowerSelect.value === "Other") {
+    otherBorrower.style.display = "block";
+    otherBorrower.required = true;
+  } else {
+    otherBorrower.style.display = "none";
+    otherBorrower.required = false;
+    otherBorrower.value = "";
+  }
+});
+
+/* Calculate amount from denominations */
+function calculateAmount() {
+  let total = 0;
+  denomInputs.forEach(i => {
+    total += (Number(i.value) || 0) * Number(i.dataset.val);
+  });
+  amountInput.value = total;
+}
+
+/* Transaction Type logic */
+trtype.addEventListener("change", () => {
+  account.innerHTML = "";
+
+  if (trtype.value === "cash") {
+    accountLabel.style.display = "none";
+    account.style.display = "none";
+    account.required = false;
+
+    denomInputs.forEach(i => {
+      i.disabled = false;
+      i.addEventListener("input", calculateAmount);
+    });
+
+    amountInput.value = 0;
+    amountInput.disabled = true;
+    return;
+  }
+
+  denomInputs.forEach(i => {
+    i.disabled = true;
+    i.value = "";
+  });
+
+  amountInput.disabled = false;
+  amountInput.value = "";
+
+  accountLabel.style.display = "block";
+  account.style.display = "block";
+  account.required = true;
+
+  let options = [];
+  if (["upi", "net", "debit"].includes(trtype.value)) options = bankAccounts;
+  if (trtype.value === "credit") options = creditCards;
+
+  account.innerHTML = `<option value="">Select</option>`;
+  options.forEach(v => account.innerHTML += `<option>${v}</option>`);
+});
+
+/* Submit */
+document.getElementById("loanForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const denominations = {};
+  denomInputs.forEach(i => denominations[i.dataset.val] = i.value || 0);
+
+  const borrowerValue =
+    borrowerSelect.value === "Other"
+      ? otherBorrower.value
+      : borrowerSelect.value;
+
+  const data = {
+    category: "loan_entry",
+    date: date.value,
+    borrower: borrowerValue,
+    narration: narration.value,
+    transaction_type: trtype.value,
+    account: trtype.value === "cash" ? "Cash" : account.value,
+    amount: amountInput.value,
+    denominations
+  };
+
+  await fetch("https://hook.eu1.make.com/YOUR_WEBHOOK_URL", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  alert("? Loan entry saved");
+  loanForm.reset();
+  amountInput.disabled = false;
+  otherBorrower.style.display = "none";
+  account.style.display = "none";
+  accountLabel.style.display = "none";
+});
+</script>
+
+</body>
+</html>
