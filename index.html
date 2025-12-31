@@ -38,13 +38,26 @@
     font-size: 14px;
     border-radius: 4px;
     border: 1px solid #ccc;
+    background-color: #ffffff;   /* ✅ force white */
+    color: #000000;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
   }
 
   input:disabled,
   select:disabled {
-    background-color: #f0f0f0;
+    background-color: #ffffff;
     color: #666;
     cursor: not-allowed;
+    opacity: 1;
   }
 
   button {
@@ -104,7 +117,7 @@
 <label id="accountLabel" style="display:none;">Account</label>
 <select id="account" style="display:none;"></select>
 
-<!-- 🔹 DENOMINATIONS + AMOUNT -->
+<!-- DENOMINATIONS + CASH AMOUNT -->
 <div id="denominationSection" style="display:none;">
   <label>Cash Denominations</label>
   <div class="denoms">
@@ -118,6 +131,138 @@
     <input type="number" class="denom" data-val="200" placeholder="&#8377;200" disabled>
     <input type="number" class="denom" data-val="500" placeholder="&#8377;500" disabled>
   </div>
+
+  <label>Amount</label>
+  <input type="number" id="amountCash" disabled>
+</div>
+
+<!-- NON-CASH AMOUNT -->
+<div id="amountNonCashSection">
+  <label>Amount</label>
+  <input type="number" id="amountNonCash">
+</div>
+
+<button type="submit">Submit</button>
+</form>
+
+<script>
+const trtype = document.getElementById("trtype");
+const denomInputs = document.querySelectorAll(".denom");
+const denominationSection = document.getElementById("denominationSection");
+const amountCash = document.getElementById("amountCash");
+const amountNonCash = document.getElementById("amountNonCash");
+const account = document.getElementById("account");
+const accountLabel = document.getElementById("accountLabel");
+const borrowerSelect = document.getElementById("borrowerSelect");
+const otherBorrower = document.getElementById("otherBorrower");
+
+const bankAccounts = ["Axis","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
+const creditCards = [
+  "Axis Flipkart","Axis MyZone","Axis Neo",
+  "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
+  "HSBC","IDFC First Millenia",
+  "ICICI Amazon","ICICI Coral","ICICI Expressions",
+  "Indusind Plat Aura EDGE","Indusind Legend",
+  "Yes Finbooster","Kotak League","Kotak Image",
+  "SBI BPCL","Standard Chartered"
+];
+
+borrowerSelect.addEventListener("change", () => {
+  if (borrowerSelect.value === "Other") {
+    otherBorrower.style.display = "block";
+    otherBorrower.required = true;
+  } else {
+    otherBorrower.style.display = "none";
+    otherBorrower.required = false;
+    otherBorrower.value = "";
+  }
+});
+
+function calculateAmount() {
+  let total = 0;
+  denomInputs.forEach(i => {
+    total += (Number(i.value) || 0) * Number(i.dataset.val);
+  });
+  amountCash.value = total;
+}
+
+trtype.addEventListener("change", () => {
+  account.innerHTML = "";
+
+  if (trtype.value === "cash") {
+    denominationSection.style.display = "block";
+    amountNonCashSection.style.display = "none";
+    accountLabel.style.display = "none";
+    account.style.display = "none";
+
+    denomInputs.forEach(i => {
+      i.disabled = false;
+      i.addEventListener("input", calculateAmount);
+    });
+
+    amountCash.value = 0;
+    return;
+  }
+
+  denominationSection.style.display = "none";
+  amountNonCashSection.style.display = "block";
+
+  denomInputs.forEach(i => {
+    i.disabled = true;
+    i.value = "";
+  });
+
+  accountLabel.style.display = "block";
+  account.style.display = "block";
+
+  let options = [];
+  if (["upi","net","debit"].includes(trtype.value)) options = bankAccounts;
+  if (trtype.value === "credit") options = creditCards;
+
+  account.innerHTML = `<option value="">Select</option>`;
+  options.forEach(v => account.innerHTML += `<option>${v}</option>`);
+});
+
+document.getElementById("loanForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const denominations = {};
+  denomInputs.forEach(i => denominations[i.dataset.val] = i.value || 0);
+
+  const borrowerValue =
+    borrowerSelect.value === "Other"
+      ? otherBorrower.value
+      : borrowerSelect.value;
+
+  const data = {
+    category: "loan_entry",
+    date: date.value,
+    borrower: borrowerValue,
+    narration: narration.value,
+    transaction_type: trtype.value,
+    account: trtype.value === "cash" ? "Cash" : account.value,
+    amount: trtype.value === "cash" ? amountCash.value : amountNonCash.value,
+    denominations
+  };
+
+  await fetch("https://hook.eu1.make.com/YOUR_WEBHOOK_URL", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  alert("Loan entry saved successfully");
+  loanForm.reset();
+  denominationSection.style.display = "none";
+  amountNonCashSection.style.display = "block";
+  account.style.display = "none";
+  accountLabel.style.display = "none";
+  otherBorrower.style.display = "none";
+});
+</script>
+
+</body>
+</html>  </div>
 
   <!-- AMOUNT BELOW DENOMINATIONS -->
   <label>Amount</label>
@@ -250,4 +395,5 @@ document.getElementById("loanForm").addEventListener("submit", async (e) => {
 
 </body>
 </html>
+
 
