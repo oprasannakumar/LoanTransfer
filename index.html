@@ -86,12 +86,7 @@
   <option value="Other">Other</option>
 </select>
 
-<input
-  type="text"
-  id="otherBorrower"
-  placeholder="Enter borrower name"
-  style="display:none;"
->
+<input type="text" id="otherBorrower" placeholder="Enter borrower name" style="display:none;">
 
 <label>Narration</label>
 <input type="text" id="narration" required>
@@ -109,10 +104,7 @@
 <label id="accountLabel" style="display:none;">Account</label>
 <select id="account" style="display:none;"></select>
 
-<label>Amount</label>
-<input type="number" id="amount" required>
-
-<!-- DENOMINATIONS -->
+<!-- 🔹 DENOMINATIONS + AMOUNT -->
 <div id="denominationSection" style="display:none;">
   <label>Cash Denominations</label>
   <div class="denoms">
@@ -126,6 +118,16 @@
     <input type="number" class="denom" data-val="200" placeholder="&#8377;200" disabled>
     <input type="number" class="denom" data-val="500" placeholder="&#8377;500" disabled>
   </div>
+
+  <!-- AMOUNT BELOW DENOMINATIONS -->
+  <label>Amount</label>
+  <input type="number" id="amount" disabled>
+</div>
+
+<!-- NON-CASH AMOUNT -->
+<div id="amountSection">
+  <label>Amount</label>
+  <input type="number" id="amountNonCash">
 </div>
 
 <button type="submit">Submit</button>
@@ -133,30 +135,26 @@
 
 <script>
 const trtype = document.getElementById("trtype");
-const amountInput = document.getElementById("amount");
 const denomInputs = document.querySelectorAll(".denom");
 const denominationSection = document.getElementById("denominationSection");
+const amountCash = document.getElementById("amount");
+const amountNonCash = document.getElementById("amountNonCash");
 const account = document.getElementById("account");
 const accountLabel = document.getElementById("accountLabel");
 const borrowerSelect = document.getElementById("borrowerSelect");
 const otherBorrower = document.getElementById("otherBorrower");
 
-const bankAccounts = [
-  "Axis", "HDFC Old", "HDFC New", "ICICI",
-  "IndusInd", "Kotak", "RBL", "SBI"
-];
-
+const bankAccounts = ["Axis","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
 const creditCards = [
-  "Axis Flipkart", "Axis MyZone", "Axis Neo",
-  "HDFC PhonePe", "HDFC Tata Neu", "HDFC Millennia",
-  "HSBC", "IDFC First Millenia",
-  "ICICI Amazon", "ICICI Coral", "ICICI Expressions",
-  "Indusind Plat Aura EDGE", "Indusind Legend",
-  "Yes Finbooster", "Kotak League", "Kotak Image",
-  "SBI BPCL", "Standard Chartered"
+  "Axis Flipkart","Axis MyZone","Axis Neo",
+  "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
+  "HSBC","IDFC First Millenia",
+  "ICICI Amazon","ICICI Coral","ICICI Expressions",
+  "Indusind Plat Aura EDGE","Indusind Legend",
+  "Yes Finbooster","Kotak League","Kotak Image",
+  "SBI BPCL","Standard Chartered"
 ];
 
-/* Borrower Other */
 borrowerSelect.addEventListener("change", () => {
   if (borrowerSelect.value === "Other") {
     otherBorrower.style.display = "block";
@@ -168,58 +166,52 @@ borrowerSelect.addEventListener("change", () => {
   }
 });
 
-/* Calculate amount from denominations */
 function calculateAmount() {
   let total = 0;
   denomInputs.forEach(i => {
     total += (Number(i.value) || 0) * Number(i.dataset.val);
   });
-  amountInput.value = total;
+  amountCash.value = total;
 }
 
-/* Transaction Type logic */
 trtype.addEventListener("change", () => {
   account.innerHTML = "";
 
   if (trtype.value === "cash") {
     denominationSection.style.display = "block";
+    amountNonCash.parentElement.style.display = "none";
+
     accountLabel.style.display = "none";
     account.style.display = "none";
-    account.required = false;
 
     denomInputs.forEach(i => {
       i.disabled = false;
       i.addEventListener("input", calculateAmount);
     });
 
-    amountInput.value = 0;
-    amountInput.disabled = true;
+    amountCash.value = 0;
     return;
   }
 
   denominationSection.style.display = "none";
+  amountNonCash.parentElement.style.display = "block";
 
   denomInputs.forEach(i => {
     i.disabled = true;
     i.value = "";
   });
 
-  amountInput.disabled = false;
-  amountInput.value = "";
-
   accountLabel.style.display = "block";
   account.style.display = "block";
-  account.required = true;
 
   let options = [];
-  if (["upi", "net", "debit"].includes(trtype.value)) options = bankAccounts;
+  if (["upi","net","debit"].includes(trtype.value)) options = bankAccounts;
   if (trtype.value === "credit") options = creditCards;
 
   account.innerHTML = `<option value="">Select</option>`;
   options.forEach(v => account.innerHTML += `<option>${v}</option>`);
 });
 
-/* Submit */
 document.getElementById("loanForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -238,7 +230,7 @@ document.getElementById("loanForm").addEventListener("submit", async (e) => {
     narration: narration.value,
     transaction_type: trtype.value,
     account: trtype.value === "cash" ? "Cash" : account.value,
-    amount: amountInput.value,
+    amount: trtype.value === "cash" ? amountCash.value : amountNonCash.value,
     denominations
   };
 
@@ -250,10 +242,8 @@ document.getElementById("loanForm").addEventListener("submit", async (e) => {
 
   alert("Loan entry saved successfully");
   loanForm.reset();
-  amountInput.disabled = false;
   denominationSection.style.display = "none";
-  account.style.display = "none";
-  accountLabel.style.display = "none";
+  amountNonCash.parentElement.style.display = "block";
   otherBorrower.style.display = "none";
 });
 </script>
