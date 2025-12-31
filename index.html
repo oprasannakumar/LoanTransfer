@@ -79,9 +79,11 @@
 <form id="loanForm">
 <h2>Loan Entry</h2>
 
+<!-- DATE -->
 <label>Date</label>
 <input type="date" id="date" required>
 
+<!-- BORROWER -->
 <label>Borrower</label>
 <select id="borrowerSelect" required>
   <option value="">Select</option>
@@ -97,6 +99,11 @@
 
 <input type="text" id="otherBorrower" placeholder="Enter borrower name" style="display:none;">
 
+<!-- ✅ NARRATION (MOVED HERE) -->
+<label>Narration</label>
+<input type="text" id="narration" required>
+
+<!-- GIVEN / RECEIVED -->
 <label>Given / Received</label>
 <select id="loanDirection" required>
   <option value="">Select</option>
@@ -104,9 +111,7 @@
   <option value="received">Received</option>
 </select>
 
-<label>Narration</label>
-<input type="text" id="narration" required>
-
+<!-- TRANSACTION TYPE -->
 <label>Transaction Type</label>
 <select id="trtype" required>
   <option value="">Select</option>
@@ -117,6 +122,7 @@
   <option value="credit">Credit</option>
 </select>
 
+<!-- ACCOUNT -->
 <label id="accountLabel" style="display:none;">Account</label>
 <select id="account" style="display:none;"></select>
 
@@ -136,6 +142,7 @@
   </div>
 </div>
 
+<!-- AMOUNT -->
 <label>Amount</label>
 <input type="number" id="amount" required>
 
@@ -151,7 +158,6 @@ const account = document.getElementById("account");
 const accountLabel = document.getElementById("accountLabel");
 const borrowerSelect = document.getElementById("borrowerSelect");
 const otherBorrower = document.getElementById("otherBorrower");
-const loanDirection = document.getElementById("loanDirection");
 
 const bankAccounts = ["Axis","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
 const creditCards = [
@@ -176,7 +182,7 @@ borrowerSelect.addEventListener("change", () => {
   }
 });
 
-/* Calculate amount from denominations */
+/* Calculate amount */
 function calculateAmount() {
   let total = 0;
   denomInputs.forEach(i => {
@@ -237,8 +243,8 @@ document.getElementById("loanForm").addEventListener("submit", async (e) => {
     category: "loan_entry",
     date: date.value,
     borrower: borrowerValue,
-    direction: loanDirection.value,   // ✅ GIVEN / RECEIVED
     narration: narration.value,
+    direction: loanDirection.value,
     transaction_type: trtype.value,
     account: trtype.value === "cash" ? "Cash" : account.value,
     amount: amountInput.value,
