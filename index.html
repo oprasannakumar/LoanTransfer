@@ -12,7 +12,9 @@
     padding: 20px;
   }
 
+  /* ===== FORM ===== */
   form {
+    position: relative;
     background: #ffffff;
     padding: 20px;
     border-radius: 8px;
@@ -21,6 +23,66 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
   }
 
+  /* ===== 3 DOT MENU (LOW SENSITIVITY) ===== */
+  .menu-container {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+
+    /* 🔥 hover buffer */
+    padding: 8px;
+  }
+
+  .menu-btn {
+    font-size: 22px;
+    cursor: pointer;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    background: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    overflow: hidden;
+    min-width: 230px;
+  }
+
+  /* 🔥 KEEP MENU OPEN */
+  .menu-container:hover .menu-dropdown,
+  .menu-dropdown:hover {
+    display: block;
+  }
+
+  .menu-dropdown a {
+    display: block;
+    padding: 12px 14px;
+    text-decoration: none;
+    color: #000;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .menu-dropdown a:last-child {
+    border-bottom: none;
+  }
+
+  .menu-dropdown a:hover {
+    background: #f0f0f0;
+  }
+
+  /* ===== FORM FIELDS ===== */
   label {
     font-weight: bold;
     margin-top: 10px;
@@ -40,8 +102,6 @@
     border: 1px solid #ccc;
     background-color: #ffffff;
     color: #000;
-    appearance: none;
-    -webkit-appearance: none;
   }
 
   select {
@@ -77,195 +137,86 @@
 <body>
 
 <form id="loanForm">
-<h2>Loan Entry</h2>
 
-<!-- DATE -->
-<label>Date</label>
-<input type="date" id="date" required>
-
-<!-- BORROWER -->
-<label>Borrower</label>
-<select id="borrowerSelect" required>
-  <option value="">Select</option>
-  <option>Chinnama</option>
-  <option>Grand Father</option>
-  <option>Mother</option>
-  <option>Pedhamma</option>
-  <option>Ravi Babai</option>
-  <option>Srinivas Babai</option>
-  <option>Vasavi</option>
-  <option value="Other">Other</option>
-</select>
-
-<input type="text" id="otherBorrower" placeholder="Enter borrower name" style="display:none;">
-
-<!-- ✅ NARRATION (MOVED HERE) -->
-<label>Narration</label>
-<input type="text" id="narration" required>
-
-<!-- GIVEN / RECEIVED -->
-<label>Given / Received</label>
-<select id="loanDirection" required>
-  <option value="">Select</option>
-  <option value="given">Given</option>
-  <option value="received">Received</option>
-</select>
-
-<!-- TRANSACTION TYPE -->
-<label>Transaction Type</label>
-<select id="trtype" required>
-  <option value="">Select</option>
-  <option value="CASH">Cash</option>
-  <option value="UPI">UPI</option>
-  <option value="NET">Net Banking</option>
-  <option value="DEBIT">Debit</option>
-  <option value="CREDIT">Credit</option>
-</select>
-
-<!-- ACCOUNT -->
-<label id="accountLabel" style="display:none;">Account</label>
-<select id="account" style="display:none;"></select>
-
-<!-- DENOMINATIONS -->
-<div id="denominationSection" style="display:none;">
-  <label>Cash Denominations</label>
-  <div class="denoms">
-    <input type="number" class="denom" data-val="1" placeholder="&#8377;1">
-    <input type="number" class="denom" data-val="2" placeholder="&#8377;2">
-    <input type="number" class="denom" data-val="5" placeholder="&#8377;5">
-    <input type="number" class="denom" data-val="10" placeholder="&#8377;10">
-    <input type="number" class="denom" data-val="20" placeholder="&#8377;20">
-    <input type="number" class="denom" data-val="50" placeholder="&#8377;50">
-    <input type="number" class="denom" data-val="100" placeholder="&#8377;100">
-    <input type="number" class="denom" data-val="200" placeholder="&#8377;200">
-    <input type="number" class="denom" data-val="500" placeholder="&#8377;500">
+  <!-- ===== MENU ===== -->
+  <div class="menu-container">
+    <div class="menu-btn">⋮</div>
+    <div class="menu-dropdown">
+      <a href="https://oprasannakumar.github.io/Financial-Transaction/" target="_blank">
+        Financial Transactions
+      </a>
+      <a href="https://oprasannakumar.github.io/Monthlyexpences/" target="_blank">
+        Monthly Expenses
+      </a>
+      <a href="https://oprasannakumar.github.io/SelfTransfer/" target="_blank">
+        Self Transfer
+      </a>
+    </div>
   </div>
-</div>
 
-<!-- AMOUNT -->
-<label>Amount</label>
-<input type="number" id="amount" step="0.01" required>
+  <h2 style="text-align:center;">Loan Entry</h2>
 
-<button type="submit">Submit</button>
+  <label>Date</label>
+  <input type="date" id="date" required>
+
+  <label>Borrower</label>
+  <select id="borrowerSelect" required>
+    <option value="">Select</option>
+    <option>Chinnama</option>
+    <option>Grand Father</option>
+    <option>Mother</option>
+    <option>Pedhamma</option>
+    <option>Ravi Babai</option>
+    <option>Srinivas Babai</option>
+    <option>Vasavi</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <input type="text" id="otherBorrower" placeholder="Enter borrower name" style="display:none;">
+
+  <label>Narration</label>
+  <input type="text" id="narration" required>
+
+  <label>Given / Received</label>
+  <select id="loanDirection" required>
+    <option value="">Select</option>
+    <option value="given">Given</option>
+    <option value="received">Received</option>
+  </select>
+
+  <label>Transaction Type</label>
+  <select id="trtype" required>
+    <option value="">Select</option>
+    <option value="CASH">Cash</option>
+    <option value="UPI">UPI</option>
+    <option value="NET">Net Banking</option>
+    <option value="DEBIT">Debit</option>
+    <option value="CREDIT">Credit</option>
+  </select>
+
+  <label id="accountLabel" style="display:none;">Account</label>
+  <select id="account" style="display:none;"></select>
+
+  <div id="denominationSection" style="display:none;">
+    <label>Cash Denominations</label>
+    <div class="denoms">
+      <input type="number" class="denom" data-val="1" placeholder="₹1">
+      <input type="number" class="denom" data-val="2" placeholder="₹2">
+      <input type="number" class="denom" data-val="5" placeholder="₹5">
+      <input type="number" class="denom" data-val="10" placeholder="₹10">
+      <input type="number" class="denom" data-val="20" placeholder="₹20">
+      <input type="number" class="denom" data-val="50" placeholder="₹50">
+      <input type="number" class="denom" data-val="100" placeholder="₹100">
+      <input type="number" class="denom" data-val="200" placeholder="₹200">
+      <input type="number" class="denom" data-val="500" placeholder="₹500">
+    </div>
+  </div>
+
+  <label>Amount</label>
+  <input type="number" id="amount" step="0.01" required>
+
+  <button type="submit">Submit</button>
 </form>
-
-<script>
-const trtype = document.getElementById("trtype");
-const denomInputs = document.querySelectorAll(".denom");
-const denominationSection = document.getElementById("denominationSection");
-const amountInput = document.getElementById("amount");
-const account = document.getElementById("account");
-const accountLabel = document.getElementById("accountLabel");
-const borrowerSelect = document.getElementById("borrowerSelect");
-const otherBorrower = document.getElementById("otherBorrower");
-
-const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
-const creditCards = [
-  "Axis Flipkart","Axis MyZone","Axis Neo",
-  "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
-  "HSBC","IDFC First Millenia",
-  "ICICI Amazon","ICICI Coral","ICICI Expressions",
-  "Indusind Plat Aura EDGE","Indusind Legend",
-  "Yes Finbooster","Kotak League","Kotak Image",
-  "SBI BPCL","Standard Chartered"
-];
-
-/* Borrower Other */
-borrowerSelect.addEventListener("change", () => {
-  if (borrowerSelect.value === "Other") {
-    otherBorrower.style.display = "block";
-    otherBorrower.required = true;
-  } else {
-    otherBorrower.style.display = "none";
-    otherBorrower.required = false;
-    otherBorrower.value = "";
-  }
-});
-
-/* Calculate amount */
-function calculateAmount() {
-  let total = 0;
-  denomInputs.forEach(i => {
-    total += (Number(i.value) || 0) * Number(i.dataset.val);
-  });
-  amountInput.value = total;
-}
-
-/* Transaction type logic */
-trtype.addEventListener("change", () => {
-  account.innerHTML = "";
-
-  if (trtype.value === "CASH") {
-    denominationSection.style.display = "block";
-    amountInput.value = 0;
-    amountInput.disabled = true;
-
-    denomInputs.forEach(i => {
-      i.value = "";
-      i.addEventListener("input", calculateAmount);
-    });
-
-    account.style.display = "none";
-    accountLabel.style.display = "none";
-    return;
-  }
-
-  denominationSection.style.display = "none";
-  amountInput.disabled = false;
-  amountInput.value = "";
-
-  denomInputs.forEach(i => i.value = "");
-
-  account.style.display = "block";
-  accountLabel.style.display = "block";
-
-  let options = [];
-  if (["UPI","NET","DEBIT"].includes(trtype.value)) options = bankAccounts;
-  if (trtype.value === "CREDIT") options = creditCards;
-
-  account.innerHTML = `<option value="">Select</option>`;
-  options.forEach(v => account.innerHTML += `<option>${v}</option>`);
-});
-
-/* Submit */
-document.getElementById("loanForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const denominations = {};
-  denomInputs.forEach(i => denominations[i.dataset.val] = i.value || 0);
-
-  const borrowerValue =
-    borrowerSelect.value === "Other"
-      ? otherBorrower.value
-      : borrowerSelect.value;
-
-  const data = {
-    category: "loan_entry",
-    date: date.value,
-    borrower: borrowerValue,
-    narration: narration.value,
-    direction: loanDirection.value,
-    transaction_type: trtype.value,
-    account: trtype.value === "cash" ? "Cash" : account.value,
-    amount: amountInput.value,
-    denominations
-  };
-
-  await fetch("https://hook.eu1.make.com/uayw6m2h1u56gz1fuhnyewvh860q8tjy", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-
-  alert("Loan entry saved successfully");
-  loanForm.reset();
-  denominationSection.style.display = "none";
-  amountInput.disabled = false;
-  account.style.display = "none";
-  accountLabel.style.display = "none";
-  otherBorrower.style.display = "none";
-});
-</script>
 
 </body>
 </html>
