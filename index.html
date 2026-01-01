@@ -67,13 +67,8 @@
     border-bottom: 1px solid #eee;
   }
 
-  .menu-dropdown a:last-child {
-    border-bottom: none;
-  }
-
-  .menu-dropdown a:hover {
-    background: #f0f0f0;
-  }
+  .menu-dropdown a:last-child { border-bottom: none; }
+  .menu-dropdown a:hover { background: #f0f0f0; }
 
   label {
     font-weight: bold;
@@ -91,6 +86,7 @@
     border-radius: 4px;
     border: 1px solid #ccc;
     box-sizing: border-box;
+    background: #ffffff;
   }
 
   .cash-grey {
@@ -199,27 +195,38 @@ const denomInputs = document.querySelectorAll(".denom");
 const amountInput = document.getElementById("amount");
 const account = document.getElementById("account");
 const accountLabel = document.getElementById("accountLabel");
+const borrowerSelect = document.getElementById("borrowerSelect");
+const otherBorrower = document.getElementById("otherBorrower");
 
+/* DATA */
 const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
-const creditCards = ["Axis Flipkart","HDFC Millennia","ICICI Amazon"];
+const creditCards = [
+  "Axis Flipkart","Axis MyZone","Axis Neo",
+  "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
+  "HSBC","IDFC First Millenia",
+  "ICICI Amazon","ICICI Coral","ICICI Expressions",
+  "Indusind Plat Aura EDGE","Indusind Legend",
+  "Yes Finbooster","Kotak League","Kotak Image",
+  "SBI BPCL","Standard Chartered"
+];
 
-/* Borrower Other */
+/* BORROWER OTHER */
 borrowerSelect.addEventListener("change", () => {
   otherBorrower.style.display = borrowerSelect.value === "Other" ? "block" : "none";
+  otherBorrower.required = borrowerSelect.value === "Other";
 });
 
-/* CALCULATE CASH */
+/* CASH CALC */
 function calculateAmount() {
   let total = 0;
-  denomInputs.forEach(i => {
-    total += (Number(i.value) || 0) * Number(i.dataset.val);
-  });
+  denomInputs.forEach(i => total += (Number(i.value) || 0) * Number(i.dataset.val));
   amountInput.value = total;
 }
 
 /* TRANSACTION TYPE */
 trtype.addEventListener("change", () => {
   denomInputs.forEach(i => i.value = "");
+  account.innerHTML = "";
 
   if (trtype.value === "CASH") {
     denominationSection.style.display = "block";
@@ -250,7 +257,7 @@ trtype.addEventListener("change", () => {
   options.forEach(v => account.innerHTML += `<option>${v}</option>`);
 });
 
-/* SUBMIT + WEBHOOK */
+/* SUBMIT */
 document.getElementById("loanForm").addEventListener("submit", async e => {
   e.preventDefault();
 
