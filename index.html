@@ -6,107 +6,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    padding: 20px;
-  }
+body{font-family:Arial;background:#f5f5f5;padding:20px}
+form{position:relative;background:#fff;padding:20px;border-radius:10px;max-width:430px;margin:auto;box-shadow:0 0 10px rgba(0,0,0,.1)}
+label{font-weight:bold;margin-top:12px;display:block}
+input,select,textarea,button{
+  width:100%;height:42px;padding:8px 10px;margin-top:5px;
+  border-radius:6px;border:1px solid #ccc;box-sizing:border-box;background:#fff
+}
+textarea{resize:none}
+button{background:#007bff;color:#fff;border:none;margin-top:15px;cursor:pointer}
 
-  form {
-    position: relative;
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 420px;
-    margin: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
+/* 3-dot menu */
+.menu-container{position:absolute;top:12px;left:12px}
+.menu-btn{
+  width:36px;height:36px;border:1px solid #ccc;border-radius:6px;
+  background:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer
+}
+.menu-dropdown{
+  display:none;position:absolute;top:46px;left:0;background:#fff;
+  border-radius:6px;min-width:230px;box-shadow:0 4px 12px rgba(0,0,0,.25)
+}
+.menu-container:hover .menu-dropdown{display:block}
+.menu-dropdown a{
+  display:block;padding:12px 14px;text-decoration:none;color:#000;border-bottom:1px solid #eee
+}
+.menu-dropdown a:hover{background:#f0f0f0}
 
-  /* MENU */
-  .menu-container {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    padding: 8px;
-  }
+/* Cash */
+#denominations{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.denom-card{border:1px solid #d0d0d0;border-radius:12px;padding:10px;text-align:center}
+.denom{font-size:18px;font-weight:700;margin-bottom:6px}
+.amount-cash{background:#f0f0f0!important}
 
-  .menu-btn {
-    font-size: 22px;
-    background: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  .menu-dropdown {
-    display: none;
-    position: absolute;
-    top: 50px;
-    left: 0;
-    background: #ffffff;
-    border-radius: 6px;
-    min-width: 230px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  }
-
-  .menu-container:hover .menu-dropdown,
-  .menu-dropdown:hover {
-    display: block;
-  }
-
-  .menu-dropdown a {
-    display: block;
-    padding: 12px 14px;
-    text-decoration: none;
-    color: #000;
-    border-bottom: 1px solid #eee;
-  }
-
-  .menu-dropdown a:last-child { border-bottom: none; }
-  .menu-dropdown a:hover { background: #f0f0f0; }
-
-  label {
-    font-weight: bold;
-    margin-top: 10px;
-    display: block;
-  }
-
-  input,
-  select,
-  button {
-    width: 100%;
-    height: 42px;
-    padding: 8px 10px;
-    margin-top: 5px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    background: #ffffff;
-  }
-
-  .cash-grey {
-    background-color: #f0f0f0 !important;
-  }
-
-  button {
-    height: 44px;
-    margin-top: 15px;
-    background: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-
-  .denoms {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
+/* Modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:center;justify-content:center}
+.modal-box{background:#fff;width:92%;max-width:420px;border-radius:12px;padding:16px}
+.modal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.modal-card{border:1px solid #ccc;border-radius:10px;padding:8px;text-align:center;font-weight:700}
+.modal-actions{display:flex;gap:12px;margin-top:16px}
+.cancel{background:#ccc;color:#000}
+.confirm{background:#007bff;color:#fff}
 </style>
 </head>
 
@@ -114,177 +53,217 @@
 
 <form id="loanForm">
 
-  <!-- MENU -->
-  <div class="menu-container">
-    <div class="menu-btn">⋮</div>
-    <div class="menu-dropdown">
-      <a href="https://oprasannakumar.github.io/Financial-Transaction/" target="_blank">Financial Transactions</a>
-      <a href="https://oprasannakumar.github.io/Monthlyexpences/" target="_blank">Monthly Expenses</a>
-      <a href="https://oprasannakumar.github.io/SelfTransfer/" target="_blank">Self Transfer</a>
-    </div>
+<div class="menu-container">
+  <div class="menu-btn">⋮</div>
+  <div class="menu-dropdown">
+    <a href="https://oprasannakumar.github.io/Financial-Transaction/">Financial Entries</a>
+    <a href="https://oprasannakumar.github.io/SelfTransfer/">Self Transfer</a>
+    <a href="https://oprasannakumar.github.io/LoanTransfer/">Loan Entries</a>
   </div>
+</div>
 
-  <h2 style="text-align:center;">Loan Entry</h2>
+<h2 style="text-align:center">Loan Entry</h2>
 
-  <label>Date</label>
-  <input type="date" id="date" required>
+<label>Date</label>
+<input type="date" id="date">
 
-  <label>Borrower</label>
-  <select id="borrowerSelect" required>
-    <option value="">Select</option>
-    <option>Chinnama</option>
-    <option>Grand Father</option>
-    <option>Mother</option>
-    <option>Pedhamma</option>
-    <option>Ravi Babai</option>
-    <option>Srinivas Babai</option>
-    <option>Vasavi</option>
-    <option value="Other">Other</option>
-  </select>
+<label>Borrower</label>
+<select id="borrower">
+  <option value="">Select</option>
+  <option>Chinnama</option>
+  <option>Grand Father</option>
+  <option>Mother</option>
+  <option>Pedhamma</option>
+  <option>Ravi Babai</option>
+  <option>Srinivas Babai</option>
+  <option>Vasavi</option>
+  <option value="Other">Other</option>
+</select>
 
-  <input type="text" id="otherBorrower" placeholder="Enter borrower name" style="display:none;">
+<input id="borrowerOther" placeholder="Enter borrower name" style="display:none">
 
-  <label>Narration</label>
-  <input type="text" id="narration" required>
+<label>Narration</label>
+<textarea id="narration"></textarea>
 
-  <label>Given / Received</label>
-  <select id="loanDirection" required>
-    <option value="">Select</option>
-    <option value="given">Given</option>
-    <option value="received">Received</option>
-  </select>
+<label>Given / Received</label>
+<select id="direction">
+  <option value="">Select</option>
+  <option>Given</option>
+  <option>Received</option>
+</select>
 
-  <label>Transaction Type</label>
-  <select id="trtype" required>
-    <option value="">Select</option>
-    <option value="CASH">Cash</option>
-    <option value="UPI">UPI</option>
-    <option value="NET">Net Banking</option>
-    <option value="DEBIT">Debit</option>
-    <option value="CREDIT">Credit</option>
-  </select>
+<label>Transaction Type</label>
+<select id="trtype">
+  <option value="">Select</option>
+  <option value="cash">Cash</option>
+  <option>UPI</option>
+  <option>NET</option>
+  <option>DEBIT</option>
+  <option>CREDIT</option>
+</select>
 
-  <label id="accountLabel" style="display:none;">Account</label>
-  <select id="account" style="display:none;"></select>
+<label id="accountLabel" style="display:none">Account</label>
+<select id="account" style="display:none"></select>
 
-  <div id="denominationSection" style="display:none;">
-    <label>Cash Denominations</label>
-    <div class="denoms">
-      <input type="number" class="denom" data-val="1" placeholder="₹1">
-      <input type="number" class="denom" data-val="2" placeholder="₹2">
-      <input type="number" class="denom" data-val="5" placeholder="₹5">
-      <input type="number" class="denom" data-val="10" placeholder="₹10">
-      <input type="number" class="denom" data-val="20" placeholder="₹20">
-      <input type="number" class="denom" data-val="50" placeholder="₹50">
-      <input type="number" class="denom" data-val="100" placeholder="₹100">
-      <input type="number" class="denom" data-val="200" placeholder="₹200">
-      <input type="number" class="denom" data-val="500" placeholder="₹500">
-    </div>
-  </div>
+<div id="denominationsBox" style="display:none">
+  <h3>Cash Denominations</h3>
+  <div id="denominations"></div>
+</div>
 
-  <label>Amount</label>
-  <input type="number" id="amount" required>
+<label>Amount</label>
+<input type="number" id="amount">
 
-  <button type="submit">Submit</button>
+<button type="submit">Submit</button>
 </form>
 
+<!-- Modal -->
+<div class="modal" id="confirmModal">
+  <div class="modal-box">
+    <h3>Confirm Loan Entry</h3>
+    <div id="confirmText"></div>
+    <div id="confirmDenoms"></div>
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeModal()">Cancel</button>
+      <button class="confirm" onclick="finalSubmit()">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const trtype = document.getElementById("trtype");
-const denominationSection = document.getElementById("denominationSection");
-const denomInputs = document.querySelectorAll(".denom");
-const amountInput = document.getElementById("amount");
-const account = document.getElementById("account");
-const accountLabel = document.getElementById("accountLabel");
-const borrowerSelect = document.getElementById("borrowerSelect");
-const otherBorrower = document.getElementById("otherBorrower");
+const WEBHOOK_URL = "https://hook.eu1.make.com/uayw6m2h1u56gz1fuhnyewvh860q8tjy";
 
-/* DATA */
-const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
-const creditCards = [
-  "Axis Flipkart","Axis MyZone","Axis Neo",
-  "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
-  "HSBC","IDFC First Millenia",
-  "ICICI Amazon","ICICI Coral","ICICI Expressions",
-  "Indusind Plat Aura EDGE","Indusind Legend",
-  "Yes Finbooster","Kotak League","Kotak Image",
-  "SBI BPCL","Standard Chartered"
-];
+const bankAccounts=["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
+const creditCards=["Axis Flipkart","Axis MyZone","Axis Neo","HDFC Millennia","ICICI Amazon","SBI BPCL"];
+const denoms=[500,200,100,50,20,10,5,2,1];
 
-/* BORROWER OTHER */
-borrowerSelect.addEventListener("change", () => {
-  otherBorrower.style.display = borrowerSelect.value === "Other" ? "block" : "none";
-  otherBorrower.required = borrowerSelect.value === "Other";
+const denomWrap=document.getElementById("denominations");
+const amount=document.getElementById("amount");
+
+/* Build denominations */
+denoms.forEach(d=>{
+  denomWrap.innerHTML+=`
+    <div class="denom-card">
+      <div class="denom">₹${d}</div>
+      <input type="number" data-denom="${d}" value="0" min="0">
+    </div>`;
 });
 
-/* CASH CALC */
-function calculateAmount() {
-  let total = 0;
-  denomInputs.forEach(i => total += (Number(i.value) || 0) * Number(i.dataset.val));
-  amountInput.value = total;
+/* Borrower other */
+borrower.onchange=()=>borrowerOther.style.display=
+  borrower.value==="Other"?"block":"none";
+
+/* Account setup */
+function setupAccount(){
+  if(!trtype.value||trtype.value==="cash"){
+    account.style.display=accountLabel.style.display="none";
+    account.innerHTML="";
+    return;
+  }
+  const list=["UPI","NET","DEBIT"].includes(trtype.value)
+    ? bankAccounts : creditCards;
+
+  account.innerHTML='<option value="">Select</option>';
+  list.forEach(v=>account.innerHTML+=`<option>${v}</option>`);
+  account.style.display=accountLabel.style.display="block";
 }
 
-/* TRANSACTION TYPE */
-trtype.addEventListener("change", () => {
-  denomInputs.forEach(i => i.value = "");
-  account.innerHTML = "";
+/* Cash toggle */
+function toggleCash(){
+  if(trtype.value==="cash"){
+    denominationsBox.style.display="block";
+    amount.readOnly=true;
+    amount.classList.add("amount-cash");
+  }else{
+    denominationsBox.style.display="none";
+    amount.readOnly=false;
+    amount.classList.remove("amount-cash");
+    amount.value="";
+    document.querySelectorAll("[data-denom]").forEach(i=>i.value=0);
+  }
+}
 
-  if (trtype.value === "CASH") {
-    denominationSection.style.display = "block";
-    amountInput.readOnly = true;
-    amountInput.classList.add("cash-grey");
-    amountInput.value = 0;
+/* Auto sum */
+document.addEventListener("input",e=>{
+  if(e.target.dataset?.denom){
+    let total=0;
+    document.querySelectorAll("[data-denom]").forEach(i=>{
+      total+=Number(i.dataset.denom)*(Number(i.value)||0);
+    });
+    amount.value=total;
+  }
+});
 
-    account.style.display = "none";
-    accountLabel.style.display = "none";
+trtype.onchange=()=>{setupAccount();toggleCash();};
 
-    denomInputs.forEach(i => i.addEventListener("input", calculateAmount));
+/* Submit */
+loanForm.onsubmit=e=>{
+  e.preventDefault();
+
+  const miss=[];
+  if(!date.value) miss.push("Date");
+  if(!borrower.value) miss.push("Borrower");
+  if(borrower.value==="Other"&&!borrowerOther.value) miss.push("Borrower Name");
+  if(!narration.value) miss.push("Narration");
+  if(!direction.value) miss.push("Given / Received");
+  if(!trtype.value) miss.push("Transaction Type");
+  if(trtype.value!=="cash"&&!account.value) miss.push("Account");
+  if(!amount.value||amount.value<=0) miss.push("Amount");
+
+  if(miss.length){
+    alert("Please fill:\n\n• "+miss.join("\n• "));
     return;
   }
 
-  denominationSection.style.display = "none";
-  amountInput.readOnly = false;
-  amountInput.classList.remove("cash-grey");
-  amountInput.value = "";
+  confirmText.innerHTML=`
+    <p><b>Date:</b> ${date.value}</p>
+    <p><b>Borrower:</b> ${borrower.value==="Other"?borrowerOther.value:borrower.value}</p>
+    <p><b>Direction:</b> ${direction.value}</p>
+    <p><b>Transaction:</b> ${trtype.value==="cash"?"Cash":trtype.value+" - "+account.value}</p>
+    <p><b>Amount:</b> ₹${amount.value}</p>
+  `;
 
-  account.style.display = "block";
-  accountLabel.style.display = "block";
+  confirmDenoms.innerHTML="";
+  if(trtype.value==="cash"){
+    confirmDenoms.innerHTML='<h4>Cash Denominations</h4><div class="modal-grid"></div>';
+    const g=confirmDenoms.querySelector(".modal-grid");
+    denoms.forEach(d=>{
+      const v=document.querySelector(`[data-denom="${d}"]`).value || 0;
+      g.innerHTML+=`<div class="modal-card">₹${d}<br>${v}</div>`;
+    });
+  }
 
-  let options = [];
-  if (["UPI","NET","DEBIT"].includes(trtype.value)) options = bankAccounts;
-  if (trtype.value === "CREDIT") options = creditCards;
+  confirmModal.style.display="flex";
+};
 
-  account.innerHTML = `<option value="">Select</option>`;
-  options.forEach(v => account.innerHTML += `<option>${v}</option>`);
-});
+function closeModal(){confirmModal.style.display="none"}
 
-/* SUBMIT */
-document.getElementById("loanForm").addEventListener("submit", async e => {
-  e.preventDefault();
+function finalSubmit(){
+  const data={
+    date:date.value,
+    borrower:borrower.value==="Other"?borrowerOther.value:borrower.value,
+    narration:narration.value,
+    direction:direction.value,
+    transactionType:trtype.value,
+    account:trtype.value==="cash"?"Cash":account.value,
+    amount:Number(amount.value),
+    denominations:denoms.map(d=>({
+      denomination:d,
+      count:Number(document.querySelector(`[data-denom="${d}"]`).value||0)
+    }))
+  };
 
-  const denominations = {};
-  denomInputs.forEach(i => denominations[i.dataset.val] = i.value || 0);
+  fetch(WEBHOOK_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify(data)
+  }).catch(err=>console.error("Webhook failed",err));
 
-  await fetch("https://hook.eu1.make.com/uayw6m2h1u56gz1fuhnyewvh860q8tjy", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      category: "loan_entry",
-      date: date.value,
-      borrower: borrowerSelect.value === "Other" ? otherBorrower.value : borrowerSelect.value,
-      narration: narration.value,
-      direction: loanDirection.value,
-      trtype: trtype.value,
-      account: trtype.value === "CASH" ? "Cash" : account.value,
-      amount: amountInput.value,
-      denominations
-    })
-  });
-
+  closeModal();
   alert("Loan entry saved successfully");
   loanForm.reset();
-  denominationSection.style.display = "none";
-  amountInput.classList.remove("cash-grey");
-});
+  denominationsBox.style.display="none";
+  amount.classList.remove("amount-cash");
+}
 </script>
 
 </body>
