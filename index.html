@@ -76,6 +76,13 @@ button:hover{background:#0056b3}
 <label>Narration</label>
 <input type="text" id="narration">
 
+<label>Loan Flow</label>
+<select id="loan_flow">
+  <option value="">Select</option>
+  <option value="Given">Given</option>
+  <option value="Received">Received</option>
+</select>
+  
 <label>Transaction Type</label>
 <select id="trtype">
   <option value="">Select</option>
@@ -189,6 +196,7 @@ form.onsubmit=e=>{
   const missing=[];
   if(!date.value) missing.push("Date");
   if(!borrower.value) missing.push("Borrower");
+  if(!loan_flow.value) missing.push("Loan Flow");
   if(borrower.value==="Other"&&!borrowerOther.value) missing.push("Borrower Name");
   if(!narration.value) missing.push("Narration");
   if(!trtype.value) missing.push("Transaction Type");
@@ -227,20 +235,22 @@ async function send(){
   const cash={};
   document.querySelectorAll("[data-d]").forEach(i=>cash[i.dataset.d]=Number(i.value)||0);
 
-  await fetch(WEBHOOK_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      category:"loan_entry",
-      date:date.value,
-      borrower:borrower.value==="Other"?borrowerOther.value:borrower.value,
-      narration:narration.value,
-      trtype:trtype.value,
-      account:trtype.value==="CASH"?"Cash":account.value,
-      amount:Number(amount.value),
-      cash_denominations:cash
-    })
-  });
+ await fetch(WEBHOOK_URL,{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({
+    category: "loan_entry",
+    loan_flow: loan_flow.value,   // ✅ ADDED
+    date: date.value,
+    borrower: borrower.value==="Other"?borrowerOther.value:borrower.value,
+    narration: narration.value,
+    trtype: trtype.value,
+    account: trtype.value==="CASH"?"Cash":account.value,
+    amount: Number(amount.value),
+    denominations: cash
+  })
+});
+
 
   popup.style.display="none";
   alert("Loan entry saved");
