@@ -49,8 +49,8 @@ button:hover{background:#0056b3}
   <div class="menu-btn">⋮</div>
   <div class="menu-dropdown">
     <a href="https://oprasannakumar.github.io/Financial-Transaction/">Financial Transactions</a>
-<a href="https://oprasannakumar.github.io/Monthlyexpences/">Monthly Expenses</a>
-<a href="https://oprasannakumar.github.io/SelfTransfer/">Self Transfer</a>
+    <a href="https://oprasannakumar.github.io/Monthlyexpences/">Monthly Expenses</a>
+    <a href="https://oprasannakumar.github.io/SelfTransfer/">Self Transfer</a>
   </div>
 </div>
 
@@ -75,6 +75,10 @@ button:hover{background:#0056b3}
 
 <label>Narration</label>
 <input type="text" id="narration">
+
+<!-- ✅ Bill No added -->
+<label>Bill No (Optional)</label>
+<input type="text" id="billNo" placeholder="Enter bill number">
 
 <label>Loan Flow</label>
 <select id="loan_flow">
@@ -124,7 +128,7 @@ button:hover{background:#0056b3}
 const WEBHOOK_URL="https://hook.eu1.make.com/r5iqxr1c29r3cfehmpiyixmvo2erg9o1";
 
 const bankAccounts=["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
-const creditCards = [
+const creditCards=[
   "Axis Flipkart","Axis MyZone","Axis Neo",
   "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
   "HSBC","IDFC First Millenia",
@@ -148,18 +152,14 @@ borrower.onchange=()=>{
   borrowerOther.style.display = borrower.value==="Other"?"block":"none";
 };
 
-/* ✅ FIXED: Proper reset when switching away from CASH */
 trtype.onchange=()=>{
-  // reset account UI
   account.innerHTML="";
   account.style.display="none";
   accountLbl.style.display="none";
 
-  // reset cash UI + values
   cashBox.style.display="none";
   document.querySelectorAll("[data-d]").forEach(i=>i.value=0);
 
-  // reset amount
   amount.readOnly=false;
   amount.classList.remove("cash-grey");
   amount.value="";
@@ -213,6 +213,7 @@ form.onsubmit=e=>{
     <b>Date:</b> ${date.value}<br>
     <b>Borrower:</b> ${borrower.value==="Other"?borrowerOther.value:borrower.value}<br>
     <b>Narration:</b> ${narration.value}<br>
+    <b>Bill No:</b> ${billNo.value||"-"}<br>
     <b>Type:</b> ${trtype.value}<br>
     <b>Account:</b> ${trtype.value==="CASH"?"Cash":account.value}<br>
     <b>Amount:</b> ₹${amount.value}
@@ -235,22 +236,22 @@ async function send(){
   const cash={};
   document.querySelectorAll("[data-d]").forEach(i=>cash[i.dataset.d]=Number(i.value)||0);
 
- await fetch(WEBHOOK_URL,{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-    category: "loan_entry",
-    loan_flow: loan_flow.value,   // ✅ ADDED
-    date: date.value,
-    borrower: borrower.value==="Other"?borrowerOther.value:borrower.value,
-    narration: narration.value,
-    trtype: trtype.value,
-    account: trtype.value==="CASH"?"Cash":account.value,
-    amount: Number(amount.value),
-    denominations: cash
-  })
-});
-
+  await fetch(WEBHOOK_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      category:"loan_entry",
+      loan_flow:loan_flow.value,
+      date:date.value,
+      borrower:borrower.value==="Other"?borrowerOther.value:borrower.value,
+      narration:narration.value,
+      bill_no: billNo.value || "",
+      trtype:trtype.value,
+      account:trtype.value==="CASH"?"Cash":account.value,
+      amount:Number(amount.value),
+      denominations:cash
+    })
+  });
 
   popup.style.display="none";
   alert("Loan entry saved");
