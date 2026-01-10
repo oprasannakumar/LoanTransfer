@@ -76,7 +76,6 @@ button:hover{background:#0056b3}
 <label>Narration</label>
 <input type="text" id="narration">
 
-<!-- ✅ Bill No added -->
 <label>Bill No (Optional)</label>
 <input type="text" id="billNo" placeholder="Enter bill number">
 
@@ -95,10 +94,12 @@ button:hover{background:#0056b3}
   <option>NET</option>
   <option>DEBIT</option>
   <option>CREDIT</option>
+  <option>REWARDS</option>
 </select>
 
 <label id="accountLbl" style="display:none">Account</label>
 <select id="account" style="display:none"></select>
+<input id="accountOther" placeholder="Enter reward source" style="display:none">
 
 <div id="cashBox" style="display:none">
   <h3>Cash Denominations</h3>
@@ -111,7 +112,6 @@ button:hover{background:#0056b3}
 <button type="submit">Submit</button>
 </form>
 
-<!-- Popup -->
 <div class="popup" id="popup">
   <div class="popup-box">
     <h3>Confirm Loan Entry</h3>
@@ -137,6 +137,7 @@ const creditCards=[
   "Yes Finbooster","Kotak League","Kotak Image",
   "SBI BPCL","Standard Chartered"
 ];
+const rewardAccounts=["Flipkart","Amazon","Tata Neu","Other"];
 const denoms=[500,200,100,50,20,10,5,2,1];
 
 const dWrap=document.getElementById("denominations");
@@ -152,10 +153,15 @@ borrower.onchange=()=>{
   borrowerOther.style.display = borrower.value==="Other"?"block":"none";
 };
 
+account.onchange=()=>{
+  accountOther.style.display = account.value==="Other"?"block":"none";
+};
+
 trtype.onchange=()=>{
   account.innerHTML="";
   account.style.display="none";
   accountLbl.style.display="none";
+  accountOther.style.display="none";
 
   cashBox.style.display="none";
   document.querySelectorAll("[data-d]").forEach(i=>i.value=0);
@@ -173,7 +179,11 @@ trtype.onchange=()=>{
     return;
   }
 
-  const list = trtype.value==="CREDIT" ? creditCards : bankAccounts;
+  let list=[];
+  if(trtype.value==="CREDIT") list=creditCards;
+  else if(trtype.value==="REWARDS") list=rewardAccounts;
+  else list=bankAccounts;
+
   accountLbl.style.display="block";
   account.style.display="block";
   account.innerHTML="<option value=''>Select</option>";
@@ -201,12 +211,16 @@ form.onsubmit=e=>{
   if(!narration.value) missing.push("Narration");
   if(!trtype.value) missing.push("Transaction Type");
   if(trtype.value!=="CASH"&&!account.value) missing.push("Account");
+  if(account.value==="Other"&&!accountOther.value) missing.push("Reward Source");
   if(!amount.value||Number(amount.value)<=0) missing.push("Amount");
 
   if(missing.length){
     alert("Please fill:\n\n• "+missing.join("\n• "));
     return;
   }
+
+  const finalAccount =
+    account.value==="Other" ? accountOther.value : account.value;
 
   popupText.innerHTML=`
     <b>Category:</b> Loan Entry<br>
@@ -215,19 +229,9 @@ form.onsubmit=e=>{
     <b>Narration:</b> ${narration.value}<br>
     <b>Bill No:</b> ${billNo.value||"-"}<br>
     <b>Type:</b> ${trtype.value}<br>
-    <b>Account:</b> ${trtype.value==="CASH"?"Cash":account.value}<br>
+    <b>Account:</b> ${trtype.value==="CASH"?"Cash":finalAccount}<br>
     <b>Amount:</b> ₹${amount.value}
   `;
-
-  popupDenoms.innerHTML="";
-  if(trtype.value==="CASH"){
-    popupDenoms.innerHTML="<h4>Cash Denominations</h4><div class='popup-grid'></div>";
-    const g=popupDenoms.querySelector(".popup-grid");
-    denoms.forEach(d=>{
-      const c=document.querySelector(`[data-d="${d}"]`).value||0;
-      g.innerHTML+=`<div class="popup-card">₹${d}<br>${c}</div>`;
-    });
-  }
 
   popup.style.display="flex";
 };
@@ -235,6 +239,9 @@ form.onsubmit=e=>{
 async function send(){
   const cash={};
   document.querySelectorAll("[data-d]").forEach(i=>cash[i.dataset.d]=Number(i.value)||0);
+
+  const finalAccount =
+    account.value==="Other" ? accountOther.value : account.value;
 
   await fetch(WEBHOOK_URL,{
     method:"POST",
@@ -247,7 +254,7 @@ async function send(){
       narration:narration.value,
       bill_no: billNo.value || "",
       trtype:trtype.value,
-      account:trtype.value==="CASH"?"Cash":account.value,
+      account:trtype.value==="CASH"?"Cash":finalAccount,
       amount:Number(amount.value),
       denominations:cash
     })
