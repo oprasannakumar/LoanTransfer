@@ -1,275 +1,995 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Loan Entry</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Loan Entry | Smart Sync Pro</title>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2845/2845812.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-<style>
-body{font-family:Arial;background:#f5f5f5;padding:20px}
-form{position:relative;background:#fff;padding:20px;border-radius:8px;max-width:420px;margin:auto;box-shadow:0 0 10px rgba(0,0,0,.1)}
-label{font-weight:bold;margin-top:10px;display:block}
-input,select,textarea,button{
-  width:100%;height:42px;padding:8px 10px;margin-top:5px;
-  border-radius:4px;border:1px solid #ccc;box-sizing:border-box;background:#fff
+    :root { 
+      --h: 42px; --r: 10px; --primary: #22c55e; --secondary: #3b82f6; --danger: #ef4444; 
+      --bg-body: linear-gradient(135deg,#eef2f7,#f9fafb);
+      --bg-card: #ffffff; --text-main: #1f2937; --text-label: #374151; --border-color: #d1d5db; --bg-input: #ffffff;
+    }
+    body.dark { 
+      --bg-body: #020617; --bg-card: #0f172a; --text-main: #f8fafc; --text-label: #94a3b8; --border-color: #334155; --bg-input: #1e293b;
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding: 15px; margin: 0; min-height: 100vh; transition: background 0.5s ease, color 0.5s ease; }
+
+    form, .confirm-card { background: var(--bg-card); max-width: 400px; margin: auto; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.1); border: 1px solid var(--border-color); position: relative; transition: background 0.5s ease, border-color 0.5s ease; }
+    .confirm-card { max-width: 550px; width: 75%; }
+
+    /* HEADER CENTERING LOGIC */
+    .header-row-top { 
+      display: grid; 
+      grid-template-columns: 40px 1fr 80px; 
+      align-items: center; 
+      margin-bottom: 15px; 
+      margin-top: -5px; 
+    }
+
+    h3 { 
+      margin: 0; 
+      font-weight: 600; 
+      font-size: 18px; 
+      text-align: center; 
+      grid-column: 1 / -1; 
+      grid-row: 1;
+      z-index: 1;
+      padding-top: 5px;
+    }
+
+    #netStatus { 
+      grid-column: 1; 
+      grid-row: 1; 
+      z-index: 2; 
+      width: 10px; 
+      height: 10px; 
+      border-radius: 50%; 
+      background: #94a3b8; 
+      justify-self: start;
+    }
+
+    .right-btns {
+      grid-column: 3;
+      grid-row: 1;
+      z-index: 2;
+      display: flex;
+      gap: 8px;
+      justify-self: end;
+    }
+
+    #netStatus.online { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
+
+    #themeToggle, #fabToggle {
+      width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color);
+      background: var(--bg-input); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0;
+    }
+    .theme-rotate { transform: rotate(360deg); }
+
+    .nav-fab-container { position: relative; }
+    .nav-options { position: absolute; right: 0; top: 40px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: 0.2s ease-out; z-index: 10001; }
+    .nav-fab-container.active .nav-options { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .nav-item { background: var(--bg-card); color: var(--text-main); padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color); white-space: nowrap; text-align: right; width: fit-content; }
+
+    
+    .autofill-section { background: rgba(34, 197, 94, 0.05); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--primary); }
+    .autofill-section textarea { width: 100%; height: 130px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; padding: 8px; box-sizing: border-box; resize: none; background: var(--bg-input); color: var(--text-main); }
+    .btn-autofill { background: var(--primary); color: white; border: none; font-size: 11px; font-weight: 700; height: 30px; border-radius: 6px; cursor: pointer; margin-top: 8px; width: 100%; }
+
+    .batch-control { display: flex; align-items: center; justify-content: space-between; background: rgba(99,102,241,0.1); padding: 8px 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--primary); margin-top:5px;}
+    
+    .switch { position: relative; display: inline-block; width: 40px; height: 22px; margin-top:0px;}
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 22px; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(18px); }
+
+    label { font-size: 12px; font-weight: 600; margin-top: 12px; display:block; color: var(--text-label); transition: color 0.5s ease; }
+    input, select, button { width: 100%; height: var(--h); margin-top: 5px; padding: 0 10px; border-radius: var(--r); border: 1px solid var(--border-color); font-size: 13px; background: var(--bg-input); color: var(--text-main); box-sizing: border-box; transition: all 0.5s ease; }
+    input:focus, select:focus { outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(99,102,241,.1); }
+
+    form.was-validated :invalid, .is-invalid, .cash-invalid { border-color: var(--danger) !important; background: rgba(239, 68, 68, 0.03) !important; }
+
+    .smart-row { display: block; width: 100%; }
+    .smart-row.has-other { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; }
+
+    .payment-row-wrapper { margin-bottom: 12px; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; }
+    .payment-row { display: grid; grid-template-columns: 0.9fr 1.1fr 75px 35px; gap: 6px; align-items: end; }
+    .btn-del-mode { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; cursor: pointer; border-radius: 8px; display: flex; align-items: center; justify-content: center; height: var(--h); padding: 0; }
+    .btn-add-mode { background: var(--secondary); color: #fff; border: none; font-size: 11px; height: 24px; cursor: pointer; border-radius: 6px; width: auto; padding: 0 10px; margin: 0; }
+
+    .total-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 8px 12px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); }
+    #grandTotal { font-size: 14px; font-weight: 700; color: var(--primary); }
+
+    .cash-wrapper { border:1px solid var(--border-color); border-radius:12px; padding:12px; margin-top:12px; background: var(--bg-input); }
+    .cash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cash-card, .confirm-matrix-card { border:1px solid var(--border-color); border-radius:8px; padding:5px; text-align:center; background: var(--bg-card); }
+    .cash-card span, .confirm-matrix-card span { display: block; font-size: 10px; font-weight: 600; color: var(--text-label); transition: color 0.5s ease; }
+    .cash-card input { width: 60%; height: 28px; text-align: center; margin-top: 2px; font-size: 11px; }
+
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
+    #mainSubmitBtn, .btn-confirm { background: var(--primary); color: #fff; border: none; font-weight: 700; cursor: pointer; }
+    #btnRepeat, .btn-cancel { background: var(--bg-input); color: var(--text-main); border: 1.5px solid var(--border-color); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; }
+    .modal-content { background: var(--bg-card); color: var(--text-main); width: 98%; max-width: 850px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); transition: background 0.5s ease; }
+    
+    .confirm-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 13px; transition: border-color 0.5s ease; }
+    .confirm-label { font-weight: 600; color: var(--text-label); }
+    .confirm-val { color: var(--text-main); text-align: right; max-width: 60%; transition: color 0.5s ease; }
+    .confirm-section-title { font-size: 12px; font-weight: 700; color: var(--primary); margin: 15px 0 5px 0; border-bottom: 2px solid var(--primary); width: fit-content; padding-right: 10px; }
+
+    .confirm-matrix-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px; background: var(--bg-input); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); transition: background 0.5s ease; }
+    .confirm-matrix-card { display: flex; flex-direction: column; align-items: center; }
+    .confirm-matrix-card span { display:block; font-size: 9px; font-weight:700; color: var(--text-label); }
+    .confirm-matrix-card strong { font-size: 11px; color: var(--text-main); margin-top: 2px; }
+
+    .hidden { display: none !important; }
+    @keyframes blink { 50% { opacity: 0.5; } }
+    .saving-text { animation: blink 1s infinite; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 700px; }
+    th { text-align: center; padding: 10px; border-bottom: 2px solid var(--border-color); color: var(--text-label); transition: color 0.5s ease; }
+    td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: center; transition: border-color 0.5s ease; }
+    
+    /* ALIGN DATE COLUMN LEFT */
+    table th:first-child, table td:first-child { text-align: center; padding-left: 0px; width: 70px; }
+
+    .td-action-group { display: flex; justify-content: center; gap: 8px; border-bottom: none !important; padding: 0 !important; }
+    .btn-action { height:25px; width:30px; background:transparent; border:none; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+
+    .queue-denoms { font-size: 10px; color: #3b82f6; font-family: monospace; margin-top: 4px; display: block; text-align: center; width:170px;margin-left:0px;}
+    .sync-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px; }
+    #btnStopSync {
+  border: 1.5px solid #ef4444;
+  border-radius: 12px;
+  background-color: white; /* Optional: makes the red border pop */
+  color: #ef4444;            /* Optional: matches text to border */
 }
-textarea{resize:none}
-button{background:#007bff;color:#fff;border:none;margin-top:15px;height:44px}
-button:hover{background:#0056b3}
-.cash-grey{background:#f0f0f0!important}
+/* ==== RECEIPT BUTTON FLEX FIX ==== */
 
-/* Menu */
-.menu-container{position:absolute;top:12px;left:12px;padding:8px}
-.menu-btn{width:36px;height:36px;border:1px solid #ccc;border-radius:6px;background:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.menu-dropdown{display:none;position:absolute;top:50px;left:0;background:#fff;border-radius:6px;min-width:230px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-.menu-container:hover .menu-dropdown{display:block}
-.menu-dropdown a{display:block;padding:12px 14px;text-decoration:none;color:#000;border-bottom:1px solid #eee}
-.menu-dropdown a:hover{background:#f0f0f0}
+.receipt-flex {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin: 10px 0;
+}
 
-/* Cash grid */
-#denominations{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.denom-row{border:1px solid #ccc;border-radius:6px;padding:10px;text-align:center;font-weight:bold}
-.denom-row input{margin-top:6px;height:36px;text-align:center}
+.receipt-flex button {
+  flex: 1;
+  width: auto !important;       /* override global width */
+  margin: 0 !important;         /* remove global margin-top */
+  height: 30px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.receipt-flex label {
+  flex: 0 0 30px;
+  width: auto !important;       /* override global width */
+  margin: 0 !important;         /* remove global margin-top */
+  height: 30px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
 
-/* Popup */
-.popup{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center}
-.popup-box{background:#fff;width:90%;max-width:380px;border-radius:8px;padding:20px}
-.popup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-.popup-card{border:1px solid #ccc;border-radius:6px;padding:10px;text-align:center;font-weight:bold}
-.popup-actions{display:flex;gap:10px;margin-top:20px}
-.popup-actions button{flex:1}
-</style>
+/* Autofill button */
+#btnShowAutofill {
+  background: rgba(34,197,94,0.1);
+  color: var(--primary);
+  border: 1px dashed var(--primary);
+}
+
+/* Upload button */
+.upload-btn {
+  background: rgba(59,130,246,0.1);
+  color: var(--secondary);
+  border: 1px dashed var(--secondary);
+}
+  </style>
 </head>
 
 <body>
 
-<form id="form">
+<form id="loanForm" novalidate>
+  <div class="header-row-top">
+    <div id="netStatus" title="Status"></div>
+    <h3>Loan Entry</h3>
+    
+    <div class="right-btns">
+      <div class="nav-fab-container" id="navFab">
+        <button type="button" id="fabToggle" title="Navigation">🔗</button>
+        <div class="nav-options">
+          <a href="https://oprasannakumar.github.io/MonthlytransactionsGoogleSheets/" class="nav-item">🔄 Monthly Transaction</a>
+          <a href="https://oprasannakumar.github.io/Self-TransferGoogleScripts/" class="nav-item">🔄 Self Transfer</a>
+        </div>
+      </div>
+      <button type="button" id="themeToggle">🌙</button>
+    </div>
+  </div>
+<div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); padding: 8px 12px; border-radius: 10px; margin: 10px 0; border: 1px solid var(--border-color);">
+  <span style="font-size: 11px; font-weight: 700; color: var(--text-label);">Route Name to Borrower?</span>
+  <label class="switch">
+    <input type="checkbox" id="nameRoutingToggle" checked>
+    <span class="slider"></span>
+  </label>
+</div>
+<div class="receipt-flex">
+  <button type="button" id="btnShowAutofill">✨ Use Receipt Auto-Fill</button>
 
-<div class="menu-container">
-  <div class="menu-btn">⋮</div>
-  <div class="menu-dropdown">
-    <a href="https://oprasannakumar.github.io/Financial-Transaction/">Financial Transactions</a>
-    <a href="https://oprasannakumar.github.io/Monthlyexpences/">Monthly Expenses</a>
-    <a href="https://oprasannakumar.github.io/SelfTransfer/">Self Transfer</a>
+  <label for="receiptUpload" class="upload-btn">
+    📷
+  </label>
+  <input type="file" id="receiptUpload" accept="image/*" hidden>
+
+</div>
+
+ 
+  <div class="batch-control">
+    <span style="font-size: 12px; font-weight: 600;">Batch Mode</span>
+    <label class="switch">
+      <input type="checkbox" id="batchToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <label>Date</label>
+  <input type="date" id="date" required>
+
+  <label>Borrower</label>
+  <div id="borrowerSmartRow" class="smart-row">
+    <select id="borrower" required onchange="toggleSmartOther(this, 'borrower_other', 'borrowerSmartRow')">
+      <option value="">Select</option>
+      <option>Chinnama</option><option>Grand Father</option><option>Mother</option><option>Pedhamma</option><option>Ravi Babai</option><option>Srinivas Babai</option><option>Vasavi</option><option value="Other">Other</option>
+    </select>
+    <input type="text" id="borrower_other" class="hidden" placeholder="Enter name" required disabled>
+  </div>
+
+  <label>Narration</label>
+  <input type="text" id="narration" required placeholder="Reason for loan">
+
+  <div id="referenceWrapper" class="hidden">
+    <label>Reference</label>
+    <input type="text" id="reference" placeholder="Auto-filled Ref">
+  </div>
+
+  <label>Invoice No. (Optional)</label>
+  <input type="text" id="invoice" placeholder="Optional">
+
+  <label>Loan Flow</label>
+  <select id="trtype" required>
+    <option value="">Select</option>
+    <option value="loan_given">Loan Given</option>
+    <option value="loan_received">Loan Received</option>
+  </select>
+
+  <div class="header-row" style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px;">
+    <label style="margin:0">Payment Breakdown</label>
+    <button type="button" class="btn-add-mode" id="btnAddMode">+ Add Mode</button>
+  </div>
+  <div id="paymentContainer"></div>
+
+  <div class="total-wrapper">
+    <span style="font-size: 12px; font-weight: 700; color: var(--text-label);">Total Amount:</span>
+    <span id="grandTotal">₹0.00</span>
+  </div>
+
+  <div id="cashBlock" class="hidden cash-wrapper">
+    <div style="font-weight:600; color:var(--primary); margin-bottom:8px; font-size:12px;">CASH DENOMINATIONS</div>
+    <div class="cash-grid" id="cashGrid"></div>
+  </div>
+
+  <div class="btn-group">
+    <button type="submit" id="mainSubmitBtn">Save Loan</button>
+    <button type="button" id="btnRepeat">↺ Repeat Last</button>
+  </div>
+  
+  <div id="footerSync" class="sync-wrapper hidden">
+    <button type="button" id="btnSyncAll" style="background:var(--secondary); color:white; font-size:11px; font-weight:700; border:none; height:42px; display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;">
+      ☁️ Sync <span id="syncCount">(0)</span>
+    </button>
+    <button type="button" id="btnStopSync" style=border: 1.5px; solid #ef4444;border-radius: 12px; class="hidden">🛑 Stop Syncing</button>
+    <button type="button" id="btnViewQueue" style="background:#94a3b8; color:white; font-size:11px; font-weight:700; border:none; height:42px; cursor:pointer;">📋 Queue</button>
+  </div>
+</form>
+
+<div id="confirmModal" class="modal hidden">
+  <div class="confirm-card">
+    <h3 style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Confirm Details</h3>
+    <div id="confirmDetails"></div>
+    <div class="btn-group">
+      <button type="button" id="btnConfirmFinal" class="btn-confirm">Proceed</button>
+      <button type="button" id="btnConfirmCancel" class="btn-cancel">Edit</button>
+    </div>
   </div>
 </div>
 
-<h2 style="text-align:center">Loan Entry</h2>
-
-<label>Date</label>
-<input type="date" id="date">
-
-<label>Borrower</label>
-<select id="borrower">
-  <option value="">Select</option>
-  <option>Chinnama</option>
-  <option>Grand Father</option>
-  <option>Mother</option>
-  <option>Pedhamma</option>
-  <option>Ravi Babai</option>
-  <option>Srinivas Babai</option>
-  <option>Vasavi</option>
-  <option value="Other">Other</option>
-</select>
-<input id="borrowerOther" placeholder="Enter borrower name" style="display:none">
-
-<label>Narration</label>
-<input type="text" id="narration">
-
-<label>Bill No (Optional)</label>
-<input type="text" id="billNo" placeholder="Enter bill number">
-
-<label>Loan Flow</label>
-<select id="loan_flow">
-  <option value="">Select</option>
-  <option value="Given">Given</option>
-  <option value="Received">Received</option>
-</select>
-  
-<label>Transaction Type</label>
-<select id="trtype">
-  <option value="">Select</option>
-  <option>CASH</option>
-  <option>UPI</option>
-  <option>NET</option>
-  <option>DEBIT</option>
-  <option>CREDIT</option>
-  <option>REWARDS</option>
-</select>
-
-<label id="accountLbl" style="display:none">Account</label>
-<select id="account" style="display:none"></select>
-<input id="accountOther" placeholder="Enter reward source" style="display:none">
-
-<div id="cashBox" style="display:none">
-  <h3>Cash Denominations</h3>
-  <div id="denominations"></div>
-</div>
-
-<label>Amount</label>
-<input id="amount" type="number" step="0.01">
-
-<button type="submit">Submit</button>
-</form>
-
-<div class="popup" id="popup">
-  <div class="popup-box">
-    <h3>Confirm Loan Entry</h3>
-    <div id="popupText"></div>
-    <div id="popupDenoms"></div>
-    <div class="popup-actions">
-      <button onclick="popup.style.display='none'">Cancel</button>
-      <button onclick="send()">Confirm</button>
+<div id="queueModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header" style="display: flex; justify-content: space-between; padding: 15px; background: var(--bg-input); border-bottom: 1px solid var(--border-color);">
+      <h4 style="margin:0">Pending Sync Queue</h4>
+      <span style="cursor:pointer; font-size: 20px;" onclick="document.getElementById('queueModal').classList.add('hidden')">✕</span>
+    </div>
+    <div style="overflow-x: auto; padding: 10px;">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Borrower</th><th>Narration</th><th>Account</th><th>Flow</th><th>Amount</th><th>Action</th></tr>
+        </thead>
+        <tbody id="queueTableBody"></tbody>
+      </table>
     </div>
   </div>
 </div>
 
 <script>
-const WEBHOOK_URL="https://hook.eu1.make.com/r5iqxr1c29r3cfehmpiyixmvo2erg9o1";
-date.value = new Date().toISOString().split("T")[0];
-const bankAccounts=["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
-const creditCards=[
-  "Axis Flipkart","Axis MyZone","Axis Neo",
-  "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
-  "HSBC","IDFC First Millenia",
-  "ICICI Amazon","ICICI Coral","ICICI Expressions",
-  "Indusind Plat Aura EDGE","Indusind Legend",
-  "Yes Finbooster","Kotak League","Kotak Image",
-  "SBI BPCL","Standard Chartered"
-];
-const rewardAccounts=["Flipkart","Amazon","Tata Neu","Other"];
-const denoms=[500,200,100,50,20,10,5,2,1];
+// DATE FORMATTER HELPER
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${d.getDate()}-${months[d.getMonth()]}-${d.getFullYear()}`;
+}
 
-const dWrap=document.getElementById("denominations");
-denoms.forEach(d=>{
-  dWrap.innerHTML+=`
-  <div class="denom-row">
-    ₹${d}<br>
-    <input type="number" data-d="${d}" value="0">
-  </div>`;
-});
+function toggleSmartOther(sel, otherId, parentId) {
+    const isOther = sel.value === "Other";
+    const otherInp = document.getElementById(otherId);
+    const parent = document.getElementById(parentId);
+    if (otherInp) {
+        otherInp.classList.toggle('hidden', !isOther);
+        otherInp.disabled = !isOther;
+        otherInp.required = isOther;
+        if (!isOther) otherInp.value = ""; 
+        if (isOther) otherInp.focus();
+    }
+    if (parent) parent.classList.toggle('has-other', isOther);
+}
 
-borrower.onchange=()=>{
-  borrowerOther.style.display = borrower.value==="Other"?"block":"none";
-};
+document.addEventListener('DOMContentLoaded', () => {
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqPjzifT1pGTVRBv9zPT7KtbTqthUunk1zNEPuS_-4gHPghWfGonbndTnZXFsSgbe-vQ/exec";
+  const IMAGE_PROCESS_URL="https://script.google.com/macros/s/AKfycbx7CrlFktwGnHXRvdcovoXrZAjEGlg5axKnK5a7udfT-NdRwLcQ1xyqOsJ7vW7PUyPj3A/exec";
+  const denoms = [500,200,100,50,20,10,5,2,1];
+  const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
+  const creditCards = ["Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu","HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral","ICICI Expressions","Indusind Plat Aura EDGE","Indusind Legend","Yes Finbooster","Kotak League","Kotak Image","SBI BPCL","Standard Chartered"];
+  const rewardPlatforms = ["Amazon", "Flipkart", "Supermoney", "Payzapp", "MobiKwik", "Tata Neu"];
 
-account.onchange=()=>{
-  accountOther.style.display = account.value==="Other"?"block":"none";
-};
+  let db, currentPayloads = [];
+  let syncAborted = false;
+  const STORE_NAME = "loanQueue";
 
-trtype.onchange=()=>{
-  account.innerHTML="";
-  account.style.display="none";
-  accountLbl.style.display="none";
-  accountOther.style.display="none";
+  const initUI = () => {
+    const navFab = document.getElementById('navFab'), fabBtn = document.getElementById('fabToggle'), themeToggle = document.getElementById('themeToggle');
+    if (fabBtn) fabBtn.onclick = (e) => { e.stopPropagation(); navFab.classList.toggle('active'); };
+    document.addEventListener('click', () => { if(navFab) navFab.classList.remove('active'); });
+    if (themeToggle) themeToggle.onclick = () => {
+      themeToggle.classList.add('theme-rotate');
+      const isDark = document.body.classList.toggle("dark");
+      setTimeout(() => { themeToggle.textContent = isDark ? "☀️" : "🌙"; }, 150);
+      setTimeout(() => themeToggle.classList.remove('theme-rotate'), 500);
+    };
+  };
+function mapReceiptText(text) {
 
-  cashBox.style.display="none";
-  document.querySelectorAll("[data-d]").forEach(i=>i.value=0);
+  const getVal = (key) => { 
+    const r = new RegExp(`${key}:\\s*(.*)`, 'i'); 
+    const m = text.match(r); 
+    return m ? m[1].trim() : ""; 
+  };
 
-  amount.readOnly=false;
-  amount.classList.remove("cash-grey");
-  amount.value="";
+  const name = getVal('👤 Name'),
+        rawDate = getVal('📅 Date'),
+        msg = getVal('📝 Msg'),
+        amt = getVal('💰 Amount'),
+        ref = getVal('🔗 Ref'),
+        rawType = getVal('⇄ Type'),
+        rawAcc = getVal('🏢 Account'),
+        rawDirection = getVal('📊 Direction');
 
-  if(!trtype.value) return;
+  const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
 
-  if(trtype.value==="CASH"){
-    cashBox.style.display="block";
-    amount.readOnly=true;
-    amount.classList.add("cash-grey");
-    return;
+  // DATE
+  if (rawDate) {
+    const p = rawDate.split('-');
+    if (p.length === 3)
+      document.getElementById('date').value =
+        `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
   }
 
-  let list=[];
-  if(trtype.value==="CREDIT") list=creditCards;
-  else if(trtype.value==="REWARDS") list=rewardAccounts;
-  else list=bankAccounts;
+  // Direction → Flow
+  const flowField = document.getElementById('trtype');
+  let direction = "";
 
-  accountLbl.style.display="block";
-  account.style.display="block";
-  account.innerHTML="<option value=''>Select</option>";
-  list.forEach(v=>account.innerHTML+=`<option>${v}</option>`);
-};
+  if (rawDirection?.toLowerCase().includes("in")) direction = "IN";
+  if (rawDirection?.toLowerCase().includes("out")) direction = "OUT";
 
-document.addEventListener("input",e=>{
-  if(e.target.dataset?.d){
-    let total=0;
-    document.querySelectorAll("[data-d]").forEach(i=>{
-      total+=Number(i.dataset.d)*(Number(i.value)||0);
-    });
-    amount.value=total;
+  if (rawType?.toLowerCase().includes("credit")) direction = "IN";
+  if (rawType?.toLowerCase().includes("debit")) direction = "OUT";
+
+  if (direction === "IN") flowField.value = "loan_received";
+  if (direction === "OUT") flowField.value = "loan_given";
+
+  // Borrower Logic
+  if (name) {
+
+    if (isBorrowerTarget) {
+      const bSel = document.getElementById('borrower');
+      let found = false;
+
+      Array.from(bSel.options).forEach(opt => {
+        if (opt.text.toLowerCase() === name.toLowerCase()) {
+          bSel.value = opt.value;
+          found = true;
+        }
+      });
+
+      if (!found) {
+        bSel.value = "Other";
+        const otherInp = document.getElementById('borrower_other');
+        otherInp.value = name;
+        otherInp.classList.remove('hidden');
+        otherInp.disabled = false;
+      }
+
+      toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+
+      document.getElementById('narration').value =
+        `${direction === "IN" ? "Received from " : "Paid to "}${name}${msg ? " - " + msg : ""}`;
+    }
+    else {
+      document.getElementById('narration').value =
+        `${direction === "IN" ? "Received from " : "Paid to "}${name}${msg ? " - " + msg : ""}`;
+    }
   }
-});
+// 🔹 Payment Mode + Account Mapping
+let firstRow = document.querySelector('.payment-row-wrapper');
 
-form.onsubmit=e=>{
-  e.preventDefault();
+if (!firstRow) {
+  createPaymentRow();
+  firstRow = document.querySelector('.payment-row-wrapper');
+}
 
-  const missing=[];
-  if(!date.value) missing.push("Date");
-  if(!borrower.value) missing.push("Borrower");
-  if(!loan_flow.value) missing.push("Loan Flow");
-  if(borrower.value==="Other"&&!borrowerOther.value) missing.push("Borrower Name");
-  if(!narration.value) missing.push("Narration");
-  if(!trtype.value) missing.push("Transaction Type");
-  if(trtype.value!=="CASH"&&!account.value) missing.push("Account");
-  if(account.value==="Other"&&!accountOther.value) missing.push("Reward Source");
-  if(!amount.value||Number(amount.value)<=0) missing.push("Amount");
+const typeSelect = firstRow.querySelector('.row-type');
+const accSelect  = firstRow.querySelector('.row-acc');
 
-  if(missing.length){
-    alert("Please fill:\n\n• "+missing.join("\n• "));
-    return;
+// -------- TYPE MAPPING ----------
+if (rawType) {
+
+  const t = rawType.toLowerCase().trim();
+
+  if (t.includes("upi")) typeSelect.value = "upi";
+  else if (t.includes("credit")) typeSelect.value = "credit";
+  else if (t.includes("debit")) typeSelect.value = "debit";
+  else if (t.includes("net")) typeSelect.value = "net";
+  else if (t.includes("reward")) typeSelect.value = "Rewards";
+  else if (t.includes("cash")) typeSelect.value = "cash";
+}
+
+typeSelect.dispatchEvent(new Event('change'));
+
+// -------- ACCOUNT MAPPING ----------
+if (rawAcc) {
+
+  const accountText = rawAcc.trim().toLowerCase();
+  const options = Array.from(accSelect.options);
+
+  // Exact match
+  let match = options.find(opt =>
+    opt.value.toLowerCase() === accountText
+  );
+
+  // Partial match
+  if (!match) {
+    match = options.find(opt =>
+      accountText.includes(opt.value.toLowerCase())
+    );
   }
 
-  const finalAccount =
-    account.value==="Other" ? accountOther.value : account.value;
+  if (match) {
+    accSelect.value = match.value;
+  } else {
+    accSelect.value = "Other";
+    accSelect.dispatchEvent(new Event('change'));
 
-  popupText.innerHTML=`
-    <b>Category:</b> Loan Entry<br>
-    <b>Date:</b> ${date.value}<br>
-    <b>Borrower:</b> ${borrower.value==="Other"?borrowerOther.value:borrower.value}<br>
-    <b>Narration:</b> ${narration.value}<br>
-    <b>Bill No:</b> ${billNo.value||"-"}<br>
-    <b>Type:</b> ${trtype.value}<br>
-    <b>Account:</b> ${trtype.value==="CASH"?"Cash":finalAccount}<br>
-    <b>Amount:</b> ₹${amount.value}
-  `;
+    const otherInput = firstRow.querySelector('.row-acc-other');
+    otherInput.value = rawAcc;
+  }
+}
+  // Amount
+  if (amt) {
+    const numeric = amt.replace(/[^\d.]/g, '');
+    const row = document.querySelector('.row-amt');
+    if (row) row.value = numeric;
+  }
 
-  popup.style.display="flex";
+  // Reference
+  if (ref) {
+    document.getElementById('referenceWrapper').classList.remove('hidden');
+    document.getElementById('reference').value = ref;
+  }
+
+  updateGrandTotal();
+}
+
+  document.getElementById('btnShowAutofill').onclick = async () => {
+
+  try {
+    const text = await navigator.clipboard.readText();
+
+    if (!text.trim()) {
+      alert("Clipboard is empty");
+      return;
+    }
+
+    mapReceiptText(text);
+
+  } catch (err) {
+    alert("Clipboard access denied. Please allow permission.");
+  }
 };
+function mapReceiptJSON(d) {
 
-async function send(){
-  const cash={};
-  document.querySelectorAll("[data-d]").forEach(i=>cash[i.dataset.d]=Number(i.value)||0);
+  const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
 
-  const finalAccount =
-    account.value==="Other" ? accountOther.value : account.value;
+  // 🔹 Date
+  if (d.date) {
+    const p = d.date.split('-');
+    if (p.length === 3)
+      document.getElementById('date').value =
+        `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+  }
 
-  await fetch(WEBHOOK_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      category:"loan_entry",
-      loan_flow:loan_flow.value,
-      date:date.value,
-      borrower:borrower.value==="Other"?borrowerOther.value:borrower.value,
-      narration:narration.value,
-      bill_no: billNo.value || "",
-      trtype:trtype.value,
-      account:trtype.value==="CASH"?"Cash":finalAccount,
-      amount:Number(amount.value),
-      denominations:cash
+  // 🔹 Direction → Loan Flow
+  if (d.direction === "IN")
+    document.getElementById('trtype').value = "loan_received";
+  else if (d.direction === "OUT")
+    document.getElementById('trtype').value = "loan_given";
+
+  // 🔹 Borrower + Narration
+  if (d.name) {
+
+    if (isBorrowerTarget) {
+      const bSel = document.getElementById('borrower');
+      let found = false;
+
+      Array.from(bSel.options).forEach(opt => {
+        if (opt.text.toLowerCase() === d.name.toLowerCase()) {
+          bSel.value = opt.value;
+          found = true;
+        }
+      });
+
+      if (!found) {
+        bSel.value = "Other";
+        const otherInp = document.getElementById('borrower_other');
+        otherInp.value = d.name;
+        otherInp.classList.remove('hidden');
+        otherInp.disabled = false;
+      }
+
+      toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+    }
+
+    document.getElementById('narration').value =
+      `${d.direction === "IN" ? "Received from " : "Paid to "}${d.name}${d.imageMessage ? " - " + d.imageMessage : ""}`;
+  }
+if (d.type) {
+  const t = d.type.toLowerCase().trim();
+  if (t.includes("upi")) typeSelect.value = "upi";
+  else if (t.includes("credit")) typeSelect.value = "credit";
+  else if (t.includes("debit")) typeSelect.value = "debit";
+  else if (t.includes("net")) typeSelect.value = "net";
+  else if (t.includes("reward")) typeSelect.value = "Rewards";
+  else if (t.includes("cash")) typeSelect.value = "cash";
+}
+
+typeSelect.dispatchEvent(new Event('change'));
+
+if (d.account) {
+  const accountText = d.account.trim().toLowerCase();
+  const options = Array.from(accSelect.options);
+
+  let match = options.find(opt =>
+    opt.value.toLowerCase() === accountText
+  );
+
+  if (!match) {
+    match = options.find(opt =>
+      accountText.includes(opt.value.toLowerCase())
+    );
+  }
+
+  if (match) {
+    accSelect.value = match.value;
+  } else {
+    accSelect.value = "Other";
+    accSelect.dispatchEvent(new Event('change'));
+    firstRow.querySelector('.row-acc-other').value = d.account;
+  }
+}
+
+  // 🔹 Amount
+  if (d.amount) {
+    const numeric = d.amount.toString().replace(/[^\d.]/g, '');
+    const row = document.querySelector('.row-amt');
+    if (row) row.value = numeric;
+  }
+
+  // 🔹 Reference
+  if (d.refId) {
+    document.getElementById('referenceWrapper').classList.remove('hidden');
+    document.getElementById('reference').value = d.refId;
+  }
+
+  // 🔹 Payment Mode + Account
+  let firstRow = document.querySelector('.payment-row-wrapper');
+  if (!firstRow) {
+    createPaymentRow();
+    firstRow = document.querySelector('.payment-row-wrapper');
+  }
+
+  const typeSelect = firstRow.querySelector('.row-type');
+  const accSelect  = firstRow.querySelector('.row-acc');
+
+  // Mode mapping
+  if (d.type) {
+    const t = d.type.toLowerCase();
+    if (t.includes("credit")) typeSelect.value = "credit";
+    else if (t.includes("debit")) typeSelect.value = "debit";
+    else if (t.includes("upi")) typeSelect.value = "upi";
+    else if (t.includes("net")) typeSelect.value = "net";
+    else if (t.includes("reward")) typeSelect.value = "Rewards";
+  }
+
+  typeSelect.dispatchEvent(new Event('change'));
+
+  // Account matching
+  if (d.account) {
+    const options = Array.from(accSelect.options);
+    const match = options.find(opt =>
+      opt.value.toLowerCase() === d.account.toLowerCase()
+    );
+
+    if (match) {
+      accSelect.value = match.value;
+    } else {
+      const partial = options.find(opt =>
+        d.account.toLowerCase().includes(opt.value.toLowerCase())
+      );
+
+      if (partial) {
+        accSelect.value = partial.value;
+      } else {
+        accSelect.value = "Other";
+        accSelect.dispatchEvent(new Event('change'));
+        firstRow.querySelector('.row-acc-other').value = d.account;
+      }
+    }
+  }
+
+  updateGrandTotal();
+}
+
+document.getElementById('receiptUpload').addEventListener('change', function(e) {
+
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const btn = document.getElementById('btnShowAutofill');
+  btn.textContent = "🔍 Processing...";
+
+  const reader = new FileReader();
+
+  reader.onload = function () {
+    const base64 = reader.result.split(",")[1];
+
+    fetch(IMAGE_PROCESS_URL, {
+      method: "POST",
+      body: JSON.stringify({ image: base64 })
     })
+    .then(res => res.json())
+    .then(response => {
+
+      btn.textContent = "✨ Use Receipt Auto-Fill";
+
+      if (response.status !== "success") {
+        alert("Extraction failed");
+        return;
+      }
+
+      // 🔥 DIRECT MAPPING (No textarea)
+      mapReceiptJSON(response.data);
+
+    })
+    .catch(() => {
+      btn.textContent = "✨ Use Receipt Auto-Fill";
+      alert("Upload failed");
+    });
+  };
+
+  reader.readAsDataURL(file);
+});
+
+  (function initDB(){
+    const req = indexedDB.open("LoanAppDB_v14", 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+    req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); initUI(); };
+  })();
+
+  function updateNetStatus() { document.getElementById("netStatus").className = navigator.onLine ? "online" : ""; }
+  window.addEventListener('online', updateNetStatus);
+  window.addEventListener('offline', updateNetStatus);
+
+  function createPaymentRow(initial = null) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'payment-row-wrapper';
+    wrapper.innerHTML = `<div class="payment-row">
+        <div><select class="row-type" required><option value="">Type</option><option value="cash">Cash</option><option value="debit">Debit</option><option value="upi">UPI</option><option value="net">Net</option><option value="credit">Credit Card</option><option value="Rewards">Rewards</option><option value="Share">Share</option></select></div>
+        <div><select class="row-acc" required><option value="">Account</option></select></div>
+        <div><input type="number" class="row-amt" placeholder="Amt" step="0.01" required min="0.01"></div>
+        <button type="button" class="btn-del-mode">✕</button>
+      </div>
+      <input type="text" class="row-acc-other hidden" style="margin-top:6px; height:36px; width:100%; border-radius:10px; border:1px solid var(--border-color); padding:0 10px;" placeholder="Specify Account" required disabled>`;
+    const tSel = wrapper.querySelector('.row-type'), aSel = wrapper.querySelector('.row-acc'), amtInp = wrapper.querySelector('.row-amt'), otherAcc = wrapper.querySelector('.row-acc-other');
+    tSel.onchange = () => {
+  aSel.innerHTML = '<option value="">Select</option>';
+  
+  if (tSel.value === 'cash' || tSel.value === 'Share') { 
+    // Logic for both Cash and Share
+    const label = tSel.value === 'cash' ? "Cash" : "Share";
+    aSel.add(new Option(label, label)); 
+    aSel.value = label; 
+    aSel.disabled = true; 
+    
+    // Cash still needs read-only amount because it uses the denomination grid
+    amtInp.readOnly = (tSel.value === 'cash'); 
+    if(tSel.value === 'cash') recalcCash(); 
+  } 
+  else { 
+    // Logic for all other types
+    aSel.disabled = false; 
+    amtInp.readOnly = false; 
+    let list = (tSel.value === "credit") ? creditCards : (tSel.value === "Rewards" ? rewardPlatforms : bankAccounts); 
+    list.forEach(a => aSel.add(new Option(a, a))); 
+    aSel.add(new Option("Other", "Other")); 
+  }
+  
+  aSel.dispatchEvent(new Event('change')); 
+  toggleCashBlock();
+};
+
+    aSel.onchange = () => { const isOther = aSel.value === 'Other'; otherAcc.classList.toggle('hidden', !isOther); otherAcc.disabled = !isOther; otherAcc.required = isOther; };
+    amtInp.oninput = updateGrandTotal;
+    wrapper.querySelector('.btn-del-mode').onclick = () => { if(document.querySelectorAll('.payment-row-wrapper').length > 1) { wrapper.remove(); toggleCashBlock(); updateGrandTotal(); } };
+    document.getElementById('paymentContainer').appendChild(wrapper);
+    if(initial) { 
+        tSel.value = initial.type; tSel.dispatchEvent(new Event('change')); 
+        if(initial.acc === 'Other' || !Array.from(aSel.options).some(o => o.value === initial.acc)) { aSel.value = 'Other'; otherAcc.value = initial.acc; } 
+        else aSel.value = initial.acc;
+        aSel.dispatchEvent(new Event('change')); amtInp.value = initial.amt; 
+    }
+    updateGrandTotal();
+  }
+
+  function toggleCashBlock() { document.getElementById('cashBlock').classList.toggle('hidden', !Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash')); }
+  function recalcCash() {
+    let tot = 0; document.querySelectorAll('.denom-input').forEach(i => tot += (i.value || 0) * i.dataset.val);
+    document.querySelectorAll('.payment-row-wrapper').forEach(w => { if(w.querySelector('.row-type').value === 'cash') w.querySelector('.row-amt').value = tot || ""; });
+    updateGrandTotal();
+  }
+  function updateGrandTotal() { let total = 0; document.querySelectorAll('.row-amt').forEach(i => total += parseFloat(i.value) || 0); document.getElementById('grandTotal').textContent = `₹${total.toFixed(2)}`; }
+  
+  denoms.forEach(d => { 
+    const card = document.createElement('div'); card.className = 'cash-card';
+    card.innerHTML = `<span>₹${d}</span><input type="number" data-val="${d}" class="denom-input" placeholder="0">`;
+    card.querySelector('input').oninput = recalcCash;
+    document.getElementById('cashGrid').appendChild(card);
   });
 
-  popup.style.display="none";
-  alert("Loan entry saved");
-  form.reset();
-
-/* ✅ Always reset date to today */
-date.value = new Date().toISOString().split("T")[0];
-
-cashBox.style.display="none";
+  document.getElementById("loanForm").onsubmit = function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const hasCash = Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash');
+    const cashTotal = Array.from(document.querySelectorAll('.denom-input')).reduce((sum, i) => sum + (i.value * i.dataset.val), 0);
+    if(hasCash && cashTotal <= 0) { document.getElementById('cashBlock').classList.add('cash-invalid'); return; }
+    else document.getElementById('cashBlock').classList.remove('cash-invalid');
+    form.classList.add('was-validated');
+    const gTotal = parseFloat(document.getElementById('grandTotal').textContent.replace('₹',''));
+    if(!form.checkValidity() || gTotal <= 0) return;
+    const bFinal = document.getElementById('borrower').value === "Other" ? document.getElementById('borrower_other').value : document.getElementById('borrower').value;
+    const flowFinal = document.getElementById('trtype').value;
+   let refVal = document.getElementById('reference').value.trim();
+if (!refVal) {
+    const now = new Date();
+    const datePart = now.toISOString().split('T')[0].replace(/-/g, ''); // e.g., 20260205
+    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 random chars
+    refVal = `REF-${datePart}-${randomPart}`;
 }
-</script>
+    currentPayloads = [];
+    document.querySelectorAll('.payment-row-wrapper').forEach(row => {
+      const type = row.querySelector('.row-type').value, acc = row.querySelector('.row-acc').value, amt = row.querySelector('.row-amt').value;
+      const p = {
+        date: document.getElementById('date').value, borrower: bFinal, narration: document.getElementById('narration').value, reference: refVal, invoice: document.getElementById('invoice').value, trtype: flowFinal, mode: type,
+        account: acc === 'Other' ? row.querySelector('.row-acc-other').value : acc, withdrawn: flowFinal === "loan_given" ? amt : 0, deposit: flowFinal === "loan_received" ? amt : 0
+      };
+      if(type === 'cash') denoms.forEach(d => p["c"+d] = document.querySelector(`input[data-val="${d}"]`).value || 0);
+      currentPayloads.push(p);
+    });
+    localStorage.setItem("lastLoanPackage", JSON.stringify(currentPayloads));
+    if (document.getElementById("batchToggle").checked || !navigator.onLine) saveToDB();
+    else { renderConfirmation(bFinal, flowFinal, refVal); document.getElementById('confirmModal').classList.remove('hidden'); }
+  };
 
+  function renderConfirmation(borrower, flow, ref) {
+    let html = `<div class="confirm-item"><span class="confirm-label">Date</span><span class="confirm-val">${formatDisplayDate(document.getElementById('date').value)}</span></div>
+                <div class="confirm-item"><span class="confirm-label">Borrower</span><span class="confirm-val">${borrower}</span></div>
+                <div class="confirm-item"><span class="confirm-label">Narration</span><span class="confirm-val">${document.getElementById('narration').value}</span></div>
+                ${ref ? `<div class="confirm-item"><span class="confirm-label">Ref</span><span class="confirm-val">${ref}</span></div>` : ''}
+                <div class="confirm-item"><span class="confirm-label">Flow</span><span class="confirm-val">${flow.replace('_', ' ')}</span></div>
+                <div class="confirm-item" style="border:none"><span class="confirm-label" style="color:var(--primary)">Grand Total</span><span class="confirm-val" style="color:var(--primary); font-weight:bold">${document.getElementById('grandTotal').textContent}</span></div>
+                <div class="confirm-section-title">Payments</div>`;
+    currentPayloads.forEach(p => {
+      html += `<div class="confirm-item" style="border-bottom:none"><span class="confirm-label">${p.account} (${p.mode})</span><span class="confirm-val">₹${p.withdrawn || p.deposit}</span></div>`;
+      if(p.mode === 'cash') html += `<div class="confirm-matrix-grid">` + denoms.map(d => `<div class="confirm-matrix-card"><span>₹${d}</span><strong>${p["c"+d]}</strong></div>`).join('') + `</div>`;
+    });
+    document.getElementById('confirmDetails').innerHTML = html;
+  }
+
+  async function processSave() {
+    document.getElementById('confirmModal').classList.add('hidden');
+    const btn = document.getElementById('mainSubmitBtn'), originalText = btn.textContent;
+    btn.disabled = true; btn.innerHTML = `<span class="saving-text">Saving...</span>`;
+    try {
+      for (let p of currentPayloads) await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(p) });
+      alert("Saved Online!"); resetForm();
+    } catch (err) { saveToDB(); alert("Added to queue."); }
+    finally { btn.disabled = false; btn.textContent = originalText; }
+  }
+
+  function saveToDB() {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    currentPayloads.forEach(p => tx.objectStore(STORE_NAME).add(p));
+    tx.oncomplete = () => { resetForm(); updatePendingCount(); };
+  }
+
+  function resetForm() {
+    const batchActive = document.getElementById("batchToggle").checked;
+    loanForm.reset(); loanForm.classList.remove('was-validated');
+    document.getElementById("batchToggle").checked = batchActive;
+    document.getElementById('paymentContainer').innerHTML = "";
+    document.getElementById('borrowerSmartRow').classList.remove('has-other');
+    document.getElementById('borrower_other').classList.add('hidden');
+    document.getElementById('referenceWrapper').classList.add('hidden');
+    document.getElementById('cashBlock').classList.remove('cash-invalid');
+    document.getElementById("date").value = new Date().toISOString().split("T")[0];
+    createPaymentRow();
+  }
+
+  function getCashTextSummary(p) { return denoms.map(v => `${v}x${p["c"+v] || 0}`).join(", "); }
+
+  async function updatePendingCount(){
+    if(!db) return;
+    const tx = db.transaction(STORE_NAME).objectStore(STORE_NAME).getAll();
+    tx.onsuccess = () => {
+      const items = tx.result;
+      document.getElementById("syncCount").textContent = `(${items.length})`;
+      document.getElementById("footerSync").classList.toggle("hidden", items.length === 0);
+      document.getElementById("queueTableBody").innerHTML = items.map((item) => {
+        const denomsText = item.mode === 'cash' ? `<span class="queue-denoms">${getCashTextSummary(item)}</span>` : '';
+        return `<tr>
+          <td>${formatDisplayDate(item.date)}</td>
+          <td>${item.borrower}</td>
+          <td>${item.narration}</td>
+          <td><strong>${item.account}</strong>${denomsText}</td>
+          <td>${item.trtype.replace('loan_','')}</td>
+          <td>₹${item.withdrawn || item.deposit}</td>
+          <td><div class="td-action-group"><button class="btn-action" onclick="editItem(${item.id})">✏️</button><button class="btn-action" onclick="deleteItem(${item.id})">🗑️</button></div></td>
+        </tr>`;
+      }).join("");
+    };
+  }
+
+  window.deleteItem = id => { if(confirm("Delete?")) db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).delete(id).onsuccess = updatePendingCount; };
+
+  window.editItem = id => {
+    const tx = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).get(id);
+    tx.onsuccess = () => {
+      const p = tx.result;
+      document.getElementById('paymentContainer').innerHTML = "";
+      document.getElementById('date').value = p.date;
+      const bSel = document.getElementById('borrower');
+      if(Array.from(bSel.options).some(o => o.value === p.borrower)) bSel.value = p.borrower;
+      else { bSel.value = 'Other'; document.getElementById('borrower_other').value = p.borrower; }
+      toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+      document.getElementById('narration').value = p.narration;
+      if(p.reference) { document.getElementById('referenceWrapper').classList.remove('hidden'); document.getElementById('reference').value = p.reference; }
+      document.getElementById('invoice').value = p.invoice;
+      document.getElementById('trtype').value = p.trtype;
+      createPaymentRow({ type: p.mode, acc: p.account, amt: p.withdrawn || p.deposit });
+      if(p.mode === 'cash') denoms.forEach(d => {
+          const inp = document.querySelector(`.denom-input[data-val="${d}"]`);
+          if(inp) inp.value = p["c"+d] || "";
+      });
+      recalcCash();
+      db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(id).onsuccess = () => {
+        updatePendingCount(); document.getElementById('queueModal').classList.add('hidden');
+      };
+    };
+  };
+
+  async function syncAllData(){
+    if (!navigator.onLine) return alert("No internet");
+    if(!confirm("Start sync?")) return;
+    const btnSync = document.getElementById('btnSyncAll'), btnStop = document.getElementById('btnStopSync');
+    syncAborted = false; btnSync.classList.add('hidden'); btnStop.classList.remove('hidden');
+    const items = await new Promise(res => db.transaction(STORE_NAME).objectStore(STORE_NAME).getAll().onsuccess = e => res(e.target.result));
+    for (let i = 0; i < items.length; i++) {
+      if(syncAborted) break;
+      btnStop.textContent = `🛑 Stop Syncing (${i+1}/${items.length})`;
+      try {
+        await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(items[i]) });
+        await new Promise(res => db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(items[i].id).onsuccess = res);
+        updatePendingCount();
+      } catch(e) { break; }
+    }
+    btnStop.classList.add('hidden'); btnSync.classList.remove('hidden');
+  if(syncAborted) toast("Sync stopped.");
+}
+
+  document.getElementById("btnRepeat").onclick = () => {
+    const last = localStorage.getItem("lastLoanPackage"); if(!last) return alert("Nothing to repeat");
+    const data = JSON.parse(last); document.getElementById('paymentContainer').innerHTML = "";
+    data.forEach((p, i) => {
+        if(i === 0) {
+            const bSel = document.getElementById('borrower');
+            if(Array.from(bSel.options).some(o => o.value === p.borrower)) bSel.value = p.borrower;
+            else { bSel.value = 'Other'; document.getElementById('borrower_other').value = p.borrower; }
+            toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+            document.getElementById('narration').value = p.narration; document.getElementById('trtype').value = p.trtype;
+        }
+        createPaymentRow({ type: p.mode, acc: p.account, amt: p.withdrawn || p.deposit });
+        if(p.mode === 'cash') denoms.forEach(d => {
+            const inp = document.querySelector(`.denom-input[data-val="${d}"]`);
+            if(inp) inp.value = p["c"+d] || "";
+        });
+    });
+    recalcCash();
+  };
+
+  document.getElementById("btnAddMode").onclick = () => createPaymentRow();
+  document.getElementById("btnConfirmFinal").onclick = processSave;
+  document.getElementById("btnConfirmCancel").onclick = () => document.getElementById('confirmModal').classList.add('hidden');
+  document.getElementById("btnViewQueue").onclick = () => document.getElementById("queueModal").classList.remove('hidden');
+  document.getElementById('btnSyncAll').onclick = syncAllData;
+  document.getElementById('btnStopSync').onclick = () => { syncAborted = true; };
+  document.getElementById("date").value = new Date().toISOString().split("T")[0];
+  createPaymentRow();
+});
+</script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW Registered'))
+        .catch(err => console.log('SW Registration Failed', err));
+    });
+  }
+</script>
 </body>
 </html>
